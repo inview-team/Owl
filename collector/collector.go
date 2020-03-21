@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -14,7 +13,6 @@ import (
 	"github.com/gopcua/opcua/debug"
 	"github.com/gopcua/opcua/monitor"
 	"github.com/gopcua/opcua/ua"
-
 )
 
 var opcserver = "opc.tcp://localhost:30329"
@@ -35,7 +33,7 @@ type Metric struct {
 	Value     float64   `db:"value"`
 }
 
-func run(node string) {
+func run(node string, db *sqlx.DB) {
 	var (
 		endpoint = opcserver
 		policy   = "None"
@@ -43,7 +41,6 @@ func run(node string) {
 		nodeID   = node
 		interval = opcua.DefaultSubscriptionInterval.String()
 	)
-	fmt.Println("running! ", node)
 
 	debug.Enable = true
 	subInterval, err := time.ParseDuration(interval)
@@ -73,8 +70,6 @@ func run(node string) {
 		log.Fatal("Failed to find suitable endpoint")
 	}
 
-	log.Print("*", ep.SecurityPolicyURI, ep.SecurityMode)
-
 	opts := []opcua.Option{
 		opcua.SecurityPolicy(policy),
 		opcua.SecurityModeString(mode),
@@ -93,17 +88,17 @@ func run(node string) {
 	}
 
 	m.SetErrorHandler(func(_ *opcua.Client, sub *monitor.Subscription, err error) {
-		fmt.Printf("error: sub=%d err=%s", sub.SubscriptionID(), err.Error())
+		log.Printf("error: sub=%d err=%s", sub.SubscriptionID(), err.Error())
 	})
 
-	go startCallbackSub(ctx, m, subInterval, 0, nodeID)
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodeID)
 
-	go startChanSub(ctx, m, subInterval, 0, nodeID)
+	go startChanSub(ctx, m, subInterval, 0, db, nodeID)
 
 	<-ctx.Done()
 }
 
-func startCallbackSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag time.Duration, nodes ...string) {
+func startCallbackSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag time.Duration, db *sqlx.DB, node string) {
 	sub, err := m.Subscribe(
 		ctx,
 		&opcua.SubscriptionParameters{
@@ -113,16 +108,15 @@ func startCallbackSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag
 			if msg.Error != nil {
 				log.Printf("[callback] sub=%d error=%s", s.SubscriptionID(), msg.Error)
 			} else {
-				fmt.Printf("[callback] sub=%d ts=%s node=%s value=%v", s.SubscriptionID(), msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.NodeID, msg.Value.Value())
-	/*
+				log.Printf("[callback] sub=%d ts=%s node=%s value=%v", s.SubscriptionID(), msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.NodeID, msg.Value.Value())
+
 				tx := db.MustBegin()
-				tx.MustExec("INSERT INTO metrics (name, timestamp, value) VALUES ($1, $2, $3)", msg.NodeID, msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.Value.Value())
+				tx.MustExec("INSERT INTO metrics (name, timestamp, value) VALUES ($1, $2, $3)", node, msg.SourceTimestamp, msg.Value.Value())
 				tx.Commit()
-*/
 			}
 			time.Sleep(lag)
 		},
-		nodes...)
+		node )
 
 	if err != nil {
 		log.Fatal(err)
@@ -133,9 +127,9 @@ func startCallbackSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag
 	<-ctx.Done()
 }
 
-func startChanSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag time.Duration, nodes ...string) {
+func startChanSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag time.Duration, db *sqlx.DB, node string) {
 	ch := make(chan *monitor.DataChangeMessage, 16)
-	sub, err := m.ChanSubscribe(ctx, &opcua.SubscriptionParameters{Interval: interval}, ch, nodes...)
+	sub, err := m.ChanSubscribe(ctx, &opcua.SubscriptionParameters{Interval: interval}, ch, node)
 
 	if err != nil {
 		log.Fatal(err)
@@ -151,12 +145,11 @@ func startChanSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag tim
 			if msg.Error != nil {
 				log.Printf("[channel ] sub=%d error=%s", sub.SubscriptionID(), msg.Error)
 			} else {
-				fmt.Printf("[channel ] sub=%d ts=%s node=%s value=%v", sub.SubscriptionID(), msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.NodeID, msg.Value.Value())
-/*
+				log.Printf("[channel ] sub=%d ts=%s node=%s value=%v", sub.SubscriptionID(), msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.NodeID, msg.Value.Value())
+
 				tx := db.MustBegin()
-				tx.MustExec("INSERT INTO metrics (name, timestamp, value) VALUES ($1, $2, $3)", msg.NodeID, msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.Value.Value())
+				tx.MustExec("INSERT INTO metrics (name, timestamp, value) VALUES ($1, $2, $3)", node, msg.SourceTimestamp, msg.Value.Value())
 				tx.Commit()
-*/
 			}
 			time.Sleep(lag)
 		}
@@ -164,7 +157,7 @@ func startChanSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag tim
 }
 
 func cleanup(sub *monitor.Subscription) {
-	fmt.Printf("stats: sub=%d delivered=%d dropped=%d", sub.SubscriptionID(), sub.Delivered(), sub.Dropped())
+	log.Printf("stats: sub=%d delivered=%d dropped=%d", sub.SubscriptionID(), sub.Delivered(), sub.Dropped())
 	sub.Unsubscribe()
 }
 
@@ -174,11 +167,10 @@ func main() {
 		log.Fatal(err)
 	}
 	db.MustExec(schema)
+	time.Sleep(2 * time.Second)
 
-	go run(nodes[0])
-	<-time.After(time.Second * 5)
-//	for _, node := range nodes{
-//		fmt.Println(node)
-//		go run(node)
-//	}
+	for {
+		go run(db)
+		<-time.After(time.Second)
+	}
 }
