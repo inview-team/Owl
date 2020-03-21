@@ -20,8 +20,6 @@ list_of_params = []
 for i in range(0, 8):
     list_of_params.append(list_of_nodes[i].add_object(addspace, "Parameters"))
 
-
-
 Press = list_of_params[0].add_variable(addspace, "Pressure", 0)
 Humid = list_of_params[1].add_variable(addspace, "Humidity", 0)
 roomTemp = list_of_params[2].add_variable(addspace, "Room temperature", 0)
@@ -31,20 +29,20 @@ weight = list_of_params[5].add_variable(addspace, "Weight", 0)
 fluidFl = list_of_params[6].add_variable(addspace, "Fluid flow", 0)
 co2 = list_of_params[7].add_variable(addspace, "Level of CO2", 0)
 
-Press.set_writable()
-Humid.set_writable()
-roomTemp.set_writable()
-workingAreaTemp.set_writable()
-pH.set_writable()
-weight.set_writable()
-fluidFl.set_writable()
-co2.set_writable()
+Press.set_writable() #ns=2;i=9
+Humid.set_writable() #ns=2;i=10
+roomTemp.set_writable() #ns=2;i=11
+workingAreaTemp.set_writable() #ns=2;i=12
+pH.set_writable()   #ns=2;i=13
+weight.set_writable() #ns=2;i=14
+fluidFl.set_writable() #ns=2;i=15
+co2.set_writable() #ns=2;i=16
 
 server.start()
 print("Server started at {}".format(url))
 
 while True:
-    for i in range(0,100):
+    for i in range(0, 100):
         Pressure = random.uniform(900.0, 1200.0)
         Humidity = random.uniform(0.0, 100.0)
         roomTemperature = random.uniform(-40.0, 100)
@@ -66,6 +64,4 @@ while True:
         weight.set_value(Weight)
         fluidFl.set_value(fluidFlow)
         co2.set_value(CO2)
-
-
 
