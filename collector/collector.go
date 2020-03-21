@@ -15,8 +15,8 @@ import (
 	"github.com/gopcua/opcua/ua"
 )
 
-var opcserver = "opc.tcp://localhost:30329"
-var database = "tcp://127.0.0.1:9000?debug=true"
+var opcserver = "opc.tcp://opc-svc:8080"
+var database = "tcp://clickhouse-svc:9000?debug=true"
 
 var nodes = []string{"ns=2;i=9", "ns=2;i=10", "ns=2;i=11", "ns=2;i=12", "ns=2;i=13", "ns=2;i=14", "ns=2;i=15", "ns=2;i=16"}
 
@@ -33,12 +33,11 @@ type Metric struct {
 	Value     float64   `db:"value"`
 }
 
-func run(node string, db *sqlx.DB) {
+func run(db *sqlx.DB) {
 	var (
 		endpoint = opcserver
 		policy   = "None"
 		mode     = "None"
-		nodeID   = node
 		interval = opcua.DefaultSubscriptionInterval.String()
 	)
 
@@ -91,9 +90,9 @@ func run(node string, db *sqlx.DB) {
 		log.Printf("error: sub=%d err=%s", sub.SubscriptionID(), err.Error())
 	})
 
-	go startCallbackSub(ctx, m, subInterval, 0, db, nodeID)
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[0])
 
-	go startChanSub(ctx, m, subInterval, 0, db, nodeID)
+	go startChanSub(ctx, m, subInterval, 0, db, nodes[0])
 
 	<-ctx.Done()
 }

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: collector
+  labels:
+    app: collector 
+spec:
+  containers:
+  - name: collector
+    image: f0m41h4u7/owl-collector
