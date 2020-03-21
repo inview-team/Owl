@@ -13,10 +13,10 @@ import (
 	"github.com/gopcua/opcua/ua"
 )
 
-var serverEndpoint = ""
+var OPCSERVER = ""
+var DATABASE = "tcp://127.0.0.1:9000?debug=true"
 
-var schema = `
-CREATE TABLE metric (
+var schema = ` (
     timestamp DateTime,
     value Float64
 )`
@@ -28,7 +28,7 @@ type Metric struct {
 
 func monitor(node string) {
 	var (
-		endpoint = serverEndpoint
+		endpoint = OPCSERVER
 		policy   = "None"
 		mode     = "None"
 		nodeID   = node
@@ -149,23 +149,16 @@ func cleanup(sub *monitor.Subscription) {
 }
 
 func main() {
-	connect, err := sqlx.Open("clickhouse", "tcp://127.0.0.1:9000?debug=true")
+	db, err := sqlx.Open("clickhouse", DATABASE)
 	if err != nil {
 		log.Fatal(err)
 	}
-	var items []struct {
-		CountryCode string    `db:"country_code"`
-		OsID        uint8     `db:"os_id"`
-		BrowserID   uint8     `db:"browser_id"`
-		Categories  []int16   `db:"categories"`
-		ActionTime  time.Time `db:"action_time"`
-	}
-
-	metricTypes := []string{"Pressure", "Humidity", "RoomTemp", "WorkTemp", "PH", "CO2"}
+	metricTypes := []string{"Pressure", "Humidity", "RoomTemp", "WorkTemp", "FluidFlow", "Mass", "PH", "CO2"}
 
 	/*
 		for _, mt := range metricTypes {
-			// Run goroutines
+			metricSchema := "CREATE TABLE " + mt + schema
+			db.MustExec(metricSchema)
 		}
 	*/
 }
