@@ -1,0 +1,70 @@
+from opcua import Server
+import random
+import datetime
+
+server = Server()
+
+url = "opc.tcp://localhost:8080"
+server.set_endpoint(url)
+
+name = "OPC_UA_SERVER"
+addspace = server.register_namespace(name)
+
+node = server.get_objects_node()
+list_of_nodes = []
+
+for i in range(0, 8):
+    list_of_nodes.append(server.get_objects_node())
+
+list_of_params = []
+
+for i in range(0, 8):
+    list_of_params.append(list_of_nodes[i].add_object(addspace, "Parameters"))
+
+
+
+Press = list_of_params[0].add_variable(addspace, "Pressure", 0)
+Humid = list_of_params[1].add_variable(addspace, "Humidity", 0)
+roomTemp = list_of_params[2].add_variable(addspace, "Room temperature", 0)
+workingAreaTemp = list_of_params[3].add_variable(addspace, "Temperature of the working area", 0)
+pH = list_of_params[4].add_variable(addspace, "Level of pH", 0)
+weight = list_of_params[5].add_variable(addspace, "Weight", 0)
+fluidFl = list_of_params[6].add_variable(addspace, "Fluid flow", 0)
+co2 = list_of_params[7].add_variable(addspace, "Level of CO2", 0)
+
+Press.set_writable()
+Humid.set_writable()
+roomTemp.set_writable()
+workingAreaTemp.set_writable()
+pH.set_writable()
+weight.set_writable()
+fluidFl.set_writable()
+co2.set_writable()
+
+server.start()
+print("Server started at {}".format(url))
+
+while True:
+    Pressure = random.uniform(900.0, 1200.0)
+    Humidity = random.uniform(0.0, 100.0)
+    roomTemperature = random.uniform(-40.0, 100)
+    workingAreaTemperature = random.uniform(100.0, 1000.0)
+    levelOfpH = random.uniform(0.0, 14.0)
+    Weight = random.uniform(0.0, 1000.0)
+    fluidFlow = random.uniform(0.0, 100.0)
+    CO2 = random.uniform(0.0, 100.0)
+    TIME = datetime.datetime.now()
+
+    print(Pressure, Humidity, roomTemperature, workingAreaTemperature, levelOfpH, Weight, fluidFlow, CO2, TIME)
+
+    Press.set_value(Pressure)
+    Humid.set_value(Humidity)
+    roomTemp.set_value(roomTemp)
+    workingAreaTemp.set_value(workingAreaTemperature)
+    pH.set_value(levelOfpH)
+    weight.set_value(Weight)
+    fluidFl.set_value(fluidFlow)
+    co2.set_value(CO2)
+
+
+
