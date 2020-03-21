@@ -33,7 +33,7 @@ type Metric struct {
 	Value     float64   `db:"value"`
 }
 
-func run(db *sqlx.DB) {
+func run(nodeID string, db *sqlx.DB) {
 	var (
 		endpoint = opcserver
 		policy   = "None"
@@ -90,9 +90,8 @@ func run(db *sqlx.DB) {
 		log.Printf("error: sub=%d err=%s", sub.SubscriptionID(), err.Error())
 	})
 
-	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[0])
-
-	go startChanSub(ctx, m, subInterval, 0, db, nodes[0])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodeID)
+	go startChanSub(ctx, m, subInterval, 0, db, nodeID)
 
 	<-ctx.Done()
 }
@@ -169,7 +168,14 @@ func main() {
 	time.Sleep(2 * time.Second)
 
 	for {
-		go run(db)
+		go run(nodes[0], db)
+		go run(nodes[1], db)
+		go run(nodes[2], db)
+		go run(nodes[3], db)
+		go run(nodes[4], db)
+		go run(nodes[5], db)
+		go run(nodes[6], db)
+		go run(nodes[7], db)
 		<-time.After(time.Second)
 	}
 }
