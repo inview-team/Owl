@@ -4,7 +4,7 @@ import datetime
 
 server = Server()
 
-url = "opc.tcp://localhost:8080"
+url = "opc.tcp://127.0.0.1:30329"
 server.set_endpoint(url)
 
 name = "OPC_UA_SERVER"

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -16,10 +17,10 @@ import (
 
 )
 
-var opcserver = ""
+var opcserver = "opc.tcp://localhost:30329"
 var database = "tcp://127.0.0.1:9000?debug=true"
 
-var metricTypes = []string{"Pressure", "Humidity", "RoomTemp", "WorkTemp", "FluidFlow", "Mass", "PH", "CO2"}
+var nodes = []string{"ns=2;i=9", "ns=2;i=10", "ns=2;i=11", "ns=2;i=12", "ns=2;i=13", "ns=2;i=14", "ns=2;i=15", "ns=2;i=16"}
 
 var schema = ` 
 CREATE TABLE IF NOT EXISTS metrics (
@@ -42,6 +43,7 @@ func run(node string) {
 		nodeID   = node
 		interval = opcua.DefaultSubscriptionInterval.String()
 	)
+	fmt.Println("running! ", node)
 
 	debug.Enable = true
 	subInterval, err := time.ParseDuration(interval)
@@ -91,7 +93,7 @@ func run(node string) {
 	}
 
 	m.SetErrorHandler(func(_ *opcua.Client, sub *monitor.Subscription, err error) {
-		log.Printf("error: sub=%d err=%s", sub.SubscriptionID(), err.Error())
+		fmt.Printf("error: sub=%d err=%s", sub.SubscriptionID(), err.Error())
 	})
 
 	go startCallbackSub(ctx, m, subInterval, 0, nodeID)
@@ -111,9 +113,12 @@ func startCallbackSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag
 			if msg.Error != nil {
 				log.Printf("[callback] sub=%d error=%s", s.SubscriptionID(), msg.Error)
 			} else {
-				log.Printf("[callback] sub=%d ts=%s node=%s value=%v", s.SubscriptionID(), msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.NodeID, msg.Value.Value())
+				fmt.Printf("[callback] sub=%d ts=%s node=%s value=%v", s.SubscriptionID(), msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.NodeID, msg.Value.Value())
+	/*
 				tx := db.MustBegin()
 				tx.MustExec("INSERT INTO metrics (name, timestamp, value) VALUES ($1, $2, $3)", msg.NodeID, msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.Value.Value())
+				tx.Commit()
+*/
 			}
 			time.Sleep(lag)
 		},
@@ -146,7 +151,12 @@ func startChanSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag tim
 			if msg.Error != nil {
 				log.Printf("[channel ] sub=%d error=%s", sub.SubscriptionID(), msg.Error)
 			} else {
-				log.Printf("[channel ] sub=%d ts=%s node=%s value=%v", sub.SubscriptionID(), msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.NodeID, msg.Value.Value())
+				fmt.Printf("[channel ] sub=%d ts=%s node=%s value=%v", sub.SubscriptionID(), msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.NodeID, msg.Value.Value())
+/*
+				tx := db.MustBegin()
+				tx.MustExec("INSERT INTO metrics (name, timestamp, value) VALUES ($1, $2, $3)", msg.NodeID, msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.Value.Value())
+				tx.Commit()
+*/
 			}
 			time.Sleep(lag)
 		}
@@ -154,7 +164,7 @@ func startChanSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag tim
 }
 
 func cleanup(sub *monitor.Subscription) {
-	log.Printf("stats: sub=%d delivered=%d dropped=%d", sub.SubscriptionID(), sub.Delivered(), sub.Dropped())
+	fmt.Printf("stats: sub=%d delivered=%d dropped=%d", sub.SubscriptionID(), sub.Delivered(), sub.Dropped())
 	sub.Unsubscribe()
 }
 
@@ -165,5 +175,10 @@ func main() {
 	}
 	db.MustExec(schema)
 
-	//TODO: run goroutines
+	go run(nodes[0])
+	<-time.After(time.Second * 5)
+//	for _, node := range nodes{
+//		fmt.Println(node)
+//		go run(node)
+//	}
 }

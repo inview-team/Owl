@@ -1,0 +1,18 @@
+version: '3'
+services:
+  collector:
+    build: collector/ 
+    ports:
+      - "5000:5000"
+  database:
+    image: "yandex/clickhouse-server"
+    ports:
+      - "9000:9000"
+  server:
+    build: opc_ua_server/
+    ports:
+      - "30329:30329"
+  analyzer:
+    build: metric_analyze/
+    ports:
+      - "8080:8080" 
