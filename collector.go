@@ -7,28 +7,36 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/jmoiron/sqlx"
+	_ "github.com/ClickHouse/clickhouse-go"
 	"github.com/gopcua/opcua"
 	"github.com/gopcua/opcua/debug"
 	"github.com/gopcua/opcua/monitor"
 	"github.com/gopcua/opcua/ua"
+
 )
 
-var OPCSERVER = ""
-var DATABASE = "tcp://127.0.0.1:9000?debug=true"
+var opcserver = ""
+var database = "tcp://127.0.0.1:9000?debug=true"
 
-var schema = ` (
+var metricTypes = []string{"Pressure", "Humidity", "RoomTemp", "WorkTemp", "FluidFlow", "Mass", "PH", "CO2"}
+
+var schema = ` 
+CREATE TABLE IF NOT EXISTS metrics (
+    name String,
     timestamp DateTime,
     value Float64
-)`
+) engine=Memory`
 
 type Metric struct {
+	Name      string    `db:"name"`
 	Timestamp time.Time `db:"timestamp"`
 	Value     float64   `db:"value"`
 }
 
-func monitor(node string) {
+func run(node string) {
 	var (
-		endpoint = OPCSERVER
+		endpoint = opcserver
 		policy   = "None"
 		mode     = "None"
 		nodeID   = node
@@ -36,7 +44,7 @@ func monitor(node string) {
 	)
 
 	debug.Enable = true
-	subInterval, err := time.ParseDuration(*interval)
+	subInterval, err := time.ParseDuration(interval)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,12 +61,12 @@ func monitor(node string) {
 		cancel()
 	}()
 
-	endpoints, err := opcua.GetEndpoints(*endpoint)
+	endpoints, err := opcua.GetEndpoints(endpoint)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	ep := opcua.SelectEndpoint(endpoints, *policy, ua.MessageSecurityModeFromString(*mode))
+	ep := opcua.SelectEndpoint(endpoints, policy, ua.MessageSecurityModeFromString(mode))
 	if ep == nil {
 		log.Fatal("Failed to find suitable endpoint")
 	}
@@ -66,8 +74,8 @@ func monitor(node string) {
 	log.Print("*", ep.SecurityPolicyURI, ep.SecurityMode)
 
 	opts := []opcua.Option{
-		opcua.SecurityPolicy(*policy),
-		opcua.SecurityModeString(*mode),
+		opcua.SecurityPolicy(policy),
+		opcua.SecurityModeString(mode),
 	}
 
 	c := opcua.NewClient(ep.EndpointURL, opts...)
@@ -86,9 +94,9 @@ func monitor(node string) {
 		log.Printf("error: sub=%d err=%s", sub.SubscriptionID(), err.Error())
 	})
 
-	go startCallbackSub(ctx, m, subInterval, 0, *nodeID)
+	go startCallbackSub(ctx, m, subInterval, 0, nodeID)
 
-	go startChanSub(ctx, m, subInterval, 0, *nodeID)
+	go startChanSub(ctx, m, subInterval, 0, nodeID)
 
 	<-ctx.Done()
 }
@@ -104,6 +112,8 @@ func startCallbackSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag
 				log.Printf("[callback] sub=%d error=%s", s.SubscriptionID(), msg.Error)
 			} else {
 				log.Printf("[callback] sub=%d ts=%s node=%s value=%v", s.SubscriptionID(), msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.NodeID, msg.Value.Value())
+				tx := db.MustBegin()
+				tx.MustExec("INSERT INTO metrics (name, timestamp, value) VALUES ($1, $2, $3)", msg.NodeID, msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.Value.Value())
 			}
 			time.Sleep(lag)
 		},
@@ -149,16 +159,11 @@ func cleanup(sub *monitor.Subscription) {
 }
 
 func main() {
-	db, err := sqlx.Open("clickhouse", DATABASE)
+	db, err := sqlx.Open("clickhouse", database)
 	if err != nil {
 		log.Fatal(err)
 	}
-	metricTypes := []string{"Pressure", "Humidity", "RoomTemp", "WorkTemp", "FluidFlow", "Mass", "PH", "CO2"}
+	db.MustExec(schema)
 
-	/*
-		for _, mt := range metricTypes {
-			metricSchema := "CREATE TABLE " + mt + schema
-			db.MustExec(metricSchema)
-		}
-	*/
+	//TODO: run goroutines
 }
