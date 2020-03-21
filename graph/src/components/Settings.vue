@@ -28,7 +28,6 @@
            title="Update Settings"
            hide-footer>
         <b-form @submit="onSubmit" @reset="onReset">
-
           <b-form-group id="form-metric-input"
                   label="Choose metric"
                   label-for="form-metric-input">
@@ -82,32 +81,46 @@
             }
           }
         },
-      async created() {
-          try {
-          const res = await axios.get(`http://localhost:3000/alarm`)
-          this.info = res.data;
-        } catch(e) {
-          console.error(e)
-        }
-      },
       methods: {
+          getInfo() {
+            axios.get(`http://localhost:3000/alarm`)
+                .then( (res => {
+                  this.info = res.data;
+                }))
+                .catch( (error) => {
+                  console.error(error);
+                })
+          },
           initForm(){
             this.editSettingsForm.metric = '';
             this.editSettingsForm.from = null;
             this.editSettingsForm.to = null;
           },
-          updateSettings(payload) {
+          updateSettings(payload, id) {
+            axios.put('http://localhost:3000/alarm/' + id, payload)
+              .then((responce) => {
+                this.getInfo();
+                console.log(responce);
+
+              })
+              .catch((error) => {
+                console.log(error);
+                this.getInfo();
+              })
 
           },
           onSubmit(evt){
             evt.preventDefault()
             this.$refs.editSettingsModal.hide();
+            console.log(this.editSettingsForm.metric)
+            let metrId = this.info.find(inf => inf.metric === this.editSettingsForm.metric).id
             const payload = {
+              id: metrId,
               metric: this.editSettingsForm.metric,
               from: this.editSettingsForm.from,
               to: this.editSettingsForm.to,
             }
-            this.updateSettings(payload)
+            this.updateSettings(payload, metrId)
             this.initForm()
           },
           onReset(evt) {
@@ -116,5 +129,8 @@
             this.initForm()
           }
       },
+      created() {
+          this.getInfo();
+      }
     }
 </script>
