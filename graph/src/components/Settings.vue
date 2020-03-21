@@ -4,7 +4,25 @@
     <h1>Settings</h1>
     <hr><br>
        <button type="button" class="btn btn-success btn-sm"  v-b-modal.settings-modal>New Settings</button>
-
+    <div>
+      <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Metric</th>
+              <th scope="col">From</th>
+              <th scope="col">To</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="inf in info" :key="inf.id">
+              <td>{{ inf.metric }}</td>
+              <td>{{ inf.from}}</td>
+              <td>{{ inf.to}}</td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
        <b-modal ref="editSettingsModal"
            id="settings-modal"
            title="Update Settings"
@@ -49,11 +67,14 @@
 </template>
 
 <script>
+  import axios from 'axios';
+
     export default {
         data() {
           return {
             test: [],
-            variants: ['Pressure','Humidity','Room Temperature','Working are Temperature', 'pH', 'Weight', 'Fluid flow', 'CO2'],
+            info: [],
+            variants: ['Pressure','Humidity','Room Temperature','Working area Temperature', 'pH', 'Weight', 'Fluid flow', 'CO2'],
             editSettingsForm: {
               metric: '',
               from: null,
@@ -61,6 +82,14 @@
             }
           }
         },
+      async created() {
+          try {
+          const res = await axios.get(`http://localhost:3000/alarm`)
+          this.info = res.data;
+        } catch(e) {
+          console.error(e)
+        }
+      },
       methods: {
           initForm(){
             this.editSettingsForm.metric = '';
@@ -86,6 +115,6 @@
             this.$refs.editSettingsModal.hide()
             this.initForm()
           }
-      }
+      },
     }
 </script>
