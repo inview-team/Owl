@@ -10,7 +10,6 @@ server.set_endpoint(url)
 name = "OPC_UA_SERVER"
 addspace = server.register_namespace(name)
 
-node = server.get_objects_node()
 list_of_nodes = []
 
 for i in range(0, 8):
