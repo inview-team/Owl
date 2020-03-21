@@ -1,2 +1,5 @@
 backup*
-*.sh
+collector/build.sh
+collector/reset.sh
+opc_ua_server/build.sh
+opc_ua_server/reset.sh

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: opc-server
+  labels:
+    app: opc
+spec:
+  containers:
+  - name: opc-server 
+    image: f0m41h4u7/opc-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opc-svc
+spec:
+  selector:
+    app: opc
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
