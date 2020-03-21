@@ -1,12 +1,9 @@
 from clickhouse_driver import connect
 
-conn = connect('clickhouse://localhost')
+conn = connect('clickhouse://clickhouse-svc')
 cursor = conn.cursor()
 
-cursor.execute('SELECT * FROM metrics')
+cursor.execute('SELECT * FROM metrics ')
 metrics = cursor.fetchall()
 
 print(metrics)
-#df = pd.DataFrame()
-#for metric in metrics:
-#    print(metric)

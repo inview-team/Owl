@@ -177,5 +177,7 @@ func main() {
 		go run(nodes[6], db)
 		go run(nodes[7], db)
 		<-time.After(time.Second)
+		log.Printf("Next try\n")
 	}
+	log.Printf("Exited for loop\n")
 }
