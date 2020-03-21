@@ -44,26 +44,28 @@ server.start()
 print("Server started at {}".format(url))
 
 while True:
-    Pressure = random.uniform(900.0, 1200.0)
-    Humidity = random.uniform(0.0, 100.0)
-    roomTemperature = random.uniform(-40.0, 100)
-    workingAreaTemperature = random.uniform(100.0, 1000.0)
-    levelOfpH = random.uniform(0.0, 14.0)
-    Weight = random.uniform(0.0, 1000.0)
-    fluidFlow = random.uniform(0.0, 100.0)
-    CO2 = random.uniform(0.0, 100.0)
-    TIME = datetime.datetime.now()
+    for i in range(0,100):
+        Pressure = random.uniform(900.0, 1200.0)
+        Humidity = random.uniform(0.0, 100.0)
+        roomTemperature = random.uniform(-40.0, 100)
+        workingAreaTemperature = random.uniform(100.0, 1000.0)
+        levelOfpH = random.uniform(0.0, 14.0)
+        Weight = random.uniform(0.0, 1000.0)
+        fluidFlow = random.uniform(0.0, 100.0)
+        CO2 = random.uniform(0.0, 100.0)
+        TIME = datetime.datetime.now()
 
-    print(Pressure, Humidity, roomTemperature, workingAreaTemperature, levelOfpH, Weight, fluidFlow, CO2, TIME)
 
-    Press.set_value(Pressure)
-    Humid.set_value(Humidity)
-    roomTemp.set_value(roomTemp)
-    workingAreaTemp.set_value(workingAreaTemperature)
-    pH.set_value(levelOfpH)
-    weight.set_value(Weight)
-    fluidFl.set_value(fluidFlow)
-    co2.set_value(CO2)
+        print(datetime.datetime.now(), Pressure, Humidity, roomTemperature, workingAreaTemperature, levelOfpH, Weight, fluidFlow, CO2, TIME)
+
+        Press.set_value(Pressure)
+        Humid.set_value(Humidity)
+        roomTemp.set_value(roomTemp)
+        workingAreaTemp.set_value(workingAreaTemperature)
+        pH.set_value(levelOfpH)
+        weight.set_value(Weight)
+        fluidFl.set_value(fluidFlow)
+        co2.set_value(CO2)
 
 
 
