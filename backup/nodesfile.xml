@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+   <Folder>app</Folder>
+   <NodeList>
+      <element>
+         <DataType>Float</DataType>
+         <Name>Pressure</Name>
+         <NodeId>Pressure</NodeId>
+      </element>
+      <element>
+         <DataType>Float</DataType>
+         <Name>Humidity</Name>
+         <NodeId>Humidity</NodeId>
+      </element>
+      <element>
+         <DataType>Float</DataType>
+         <Name>RoomTemperature</Name>
+         <NodeId>RoomTemperature</NodeId>
+      </element>
+      <element>
+         <DataType>Float</DataType>
+         <Name>WorkTemperature</Name>
+         <NodeId>WorkTemperature</NodeId>
+      </element>
+      <element>
+         <DataType>Float</DataType>
+         <Name>pH</Name>
+         <NodeId>pH</NodeId>
+      </element>
+      <element>
+         <DataType>Float</DataType>
+         <Name>Mass</Name>
+         <NodeId>Mass</NodeId>
+      </element>
+      <element>
+         <DataType>Float</DataType>
+         <Name>FluidFlow</Name>
+         <NodeId>FluidFlow</NodeId>
+      </element>
+      <element>
+         <DataType>Float</DataType>
+         <Name>LevelOfCO2</Name>
+         <NodeId>LevelOfCO2</NodeId>
+      </element>
+   </NodeList>
+</root>
