@@ -1,10 +1,10 @@
 {
-  "alarm": [
+  "settings": [
     {
       "id": 0,
       "metric": "Pressure",
       "from": "12",
-      "to": "100"
+      "to": "1111"
     },
     {
       "id": 1,
@@ -47,6 +47,25 @@
       "metric": "CO2",
       "from": 0,
       "to": 30
+    }
+  ],
+  "alarm": [
+    {
+      "id": 0,
+      "time": "10.10.20",
+      "info": "Pressure"
+    }
+  ],
+  "logs": [
+    {
+      "id": 0,
+      "time": "10.10.20",
+      "info": "Pressure settings"
+    },
+    {
+      "time": "2020-3-22 12:48:41",
+      "info": "Update Pressure",
+      "id": 1
     }
   ]
 }

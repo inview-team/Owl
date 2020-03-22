@@ -83,7 +83,7 @@
         },
       methods: {
           getInfo() {
-            axios.get(`http://localhost:3000/alarm`)
+            axios.get(`http://localhost:3000/settings`)
                 .then( (res => {
                   this.info = res.data;
                 }))
@@ -97,7 +97,7 @@
             this.editSettingsForm.to = null;
           },
           updateSettings(payload, id) {
-            axios.put('http://localhost:3000/alarm/' + id, payload)
+            axios.put('http://localhost:3000/settings/' + id, payload)
               .then((responce) => {
                 this.getInfo();
                 console.log(responce);
@@ -107,6 +107,14 @@
                 console.log(error);
                 this.getInfo();
               })
+                    const today = new Date();
+                    const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+                    const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+                    const dateTime = date +' '+ time;
+            axios.post('http://localhost:3000/logs', {
+              'time': dateTime,
+              'info': `Update ${this.editSettingsForm.metric}`
+            })
 
           },
           onSubmit(evt){

@@ -1,10 +1,26 @@
 <template>
-
+  <div class="container">
+    <h1>Graphs</h1>
+    <p>{{metrics}}</p>
+  </div>
 </template>
 
 <script>
+
     export default {
-        name: "Graph"
+      data: {
+        return() {
+          metrics = []
+        }
+      },
+      methods: {
+        getData() {
+
+        }
+      },
+      created() {
+        this.getData()
+      }
     }
 </script>
 

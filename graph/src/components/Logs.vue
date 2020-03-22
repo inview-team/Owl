@@ -21,8 +21,8 @@
           </thead>
           <tbody>
             <tr v-for="inf in alarms" :key="inf.id">
-              <td>{{ inf.datetime }}</td>
-              <td>{{ inf.Info}}</td>
+              <td>{{ inf.time }}</td>
+              <td>{{ inf.info}}</td>
             </tr>
           </tbody>
         </table>
@@ -38,8 +38,8 @@
           </thead>
           <tbody>
             <tr v-for="inf in logs" :key="inf.id">
-              <td>{{ inf.datetime }}</td>
-              <td>{{ inf.Info}}</td>
+              <td>{{ inf.time }}</td>
+              <td>{{ inf.info}}</td>
             </tr>
           </tbody>
         </table>
@@ -50,31 +50,38 @@
 </template>
 
 <script>
+  import axios from 'axios';
     export default {
        data() {
          return {
-           alarms: [{
-             "id": 0,
-             "datetime": "22.03.2020",
-             "Info": "Alarm"
-           }],
-           logs: [{
-             "id": 0,
-             "datetime": "21.03.2020",
-             "Info": "Logs"
-           }
-           ],
-           chooser: ['Alarms','Log'],
+           alarms: [],
+           logs: [],
            currentTab: "Alarms",
          }
        },
       methods: {
         getAlarms() {
-
+            axios.get(`http://localhost:3000/alarm`)
+                .then( (res => {
+                  this.alarms = res.data;
+                }))
+                .catch( (error) => {
+                  console.error(error);
+                })
         },
         getLogs(){
-
+            axios.get(`http://localhost:3000/logs`)
+                .then( (res => {
+                  this.logs = res.data;
+                }))
+                .catch( (error) => {
+                  console.error(error);
+                })
         }
+      },
+      created() {
+         this.getAlarms()
+         this.getLogs()
       }
 
     }
