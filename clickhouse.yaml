@@ -7,7 +7,7 @@ metadata:
 spec:
   containers:
   - name: clickhouse-db
-    image: yandex/clickhouse-server
+    image: f0m41h4u7/custom-clickhouse-serv 
 ---
 apiVersion: v1
 kind: Service

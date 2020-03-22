@@ -2,3 +2,5 @@ backup*
 *build.sh
 *reset.sh
 *Dockerfile
+config*
+*log
