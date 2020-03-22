@@ -6,9 +6,9 @@ import (
 	"os"
 	"os/signal"
 	"time"
+	"fmt"
 
-	"github.com/jmoiron/sqlx"
-	_ "github.com/ClickHouse/clickhouse-go"
+	"github.com/streadway/amqp"
 	"github.com/gopcua/opcua"
 	"github.com/gopcua/opcua/debug"
 	"github.com/gopcua/opcua/monitor"
@@ -16,24 +16,78 @@ import (
 )
 
 var opcserver = "opc.tcp://opc-svc:8080"
-var database = "tcp://clickhouse-svc:9000?debug=true"
-
 var nodes = []string{"ns=2;i=9", "ns=2;i=10", "ns=2;i=11", "ns=2;i=12", "ns=2;i=13", "ns=2;i=14", "ns=2;i=15", "ns=2;i=16"}
 
-var schema = ` 
-CREATE TABLE IF NOT EXISTS metrics (
-    name String,
-    timestamp DateTime,
-    value Float64
-) engine=Memory`
-
-type Metric struct {
-	Name      string    `db:"name"`
-	Timestamp time.Time `db:"timestamp"`
-	Value     float64   `db:"value"`
+func failOnError(err error, msg string) {
+        if err != nil {
+                log.Fatalf("%s: %s", msg, err)
+        }
 }
 
-func run(db *sqlx.DB) {
+func startCallbackSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag time.Duration, q *amqp.Queue, ch *amqp.Channel, node string) {
+	sub, err := m.Subscribe(
+		ctx,
+		&opcua.SubscriptionParameters{
+			Interval: interval,
+		},
+		func(s *monitor.Subscription, msg *monitor.DataChangeMessage) {
+			if msg.Error != nil {
+				log.Printf("[callback] sub=%d error=%s", s.SubscriptionID(), msg.Error)
+			} else {
+				log.Printf("[callback] sub=%d ts=%s node=%s value=%v", s.SubscriptionID(), msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.NodeID, msg.Value.Value())
+				val := fmt.Sprintf("%v", msg.Value.Value())
+				body := node + "; " + msg.SourceTimestamp.Format("2006-01-02 15:04:05") + "; " + val
+				err := ch.Publish(
+			                "",           // exchange
+			                q.Name,       // routing key
+			                false,        // mandatory
+			                false,
+			                amqp.Publishing{
+			                        DeliveryMode: amqp.Persistent,
+						ContentType:  "text/plain",
+			                        Body:         []byte(body),
+		                })
+		        failOnError(err, "Failed to publish a message")
+		        log.Printf(" [x] Sent %s", body)
+
+			}
+			time.Sleep(lag)
+		},
+		node )
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer cleanup(sub)
+
+	<-ctx.Done()
+}
+
+func cleanup(sub *monitor.Subscription) {
+	log.Printf("stats: sub=%d delivered=%d dropped=%d", sub.SubscriptionID(), sub.Delivered(), sub.Dropped())
+	sub.Unsubscribe()
+}
+
+func main() {
+	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq-svc:5672/")
+        failOnError(err, "Failed to connect to RabbitMQ")
+        defer conn.Close()
+	log.Printf("Connected\n")
+        ch, err := conn.Channel()
+        failOnError(err, "Failed to open a channel")
+        defer ch.Close()
+	log.Printf("Opened channel \n")
+        q, err := ch.QueueDeclare(
+                "metrics", // name
+                true,         // durable
+                false,        // delete when unused
+                false,        // exclusive
+                false,        // no-wait
+                nil,          // arguments
+        )
+        failOnError(err, "Failed to declare a queue")
+	log.Printf("Declared queue %s\n", q.Name)
 	var (
 		endpoint = opcserver
 		policy   = "None"
@@ -90,62 +144,16 @@ func run(db *sqlx.DB) {
 		log.Printf("error: sub=%d err=%s", sub.SubscriptionID(), err.Error())
 	})
 
-	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[0])
-	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[1])
-	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[2])
-	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[3])
-	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[4])
-	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[5])
-	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[6])
-	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[7])
-
-	<-ctx.Done()
-}
-
-func startCallbackSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag time.Duration, db *sqlx.DB, node string) {
-	sub, err := m.Subscribe(
-		ctx,
-		&opcua.SubscriptionParameters{
-			Interval: interval,
-		},
-		func(s *monitor.Subscription, msg *monitor.DataChangeMessage) {
-			if msg.Error != nil {
-				log.Printf("[callback] sub=%d error=%s", s.SubscriptionID(), msg.Error)
-			} else {
-				log.Printf("[callback] sub=%d ts=%s node=%s value=%v", s.SubscriptionID(), msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.NodeID, msg.Value.Value())
-
-				tx := db.MustBegin()
-				tx.MustExec("INSERT INTO metrics (name, timestamp, value) VALUES ($1, $2, $3)", node, msg.SourceTimestamp, msg.Value.Value())
-				tx.Commit()
-			}
-			time.Sleep(lag)
-		},
-		node )
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer cleanup(sub)
-
-	<-ctx.Done()
-}
-
-func cleanup(sub *monitor.Subscription) {
-	log.Printf("stats: sub=%d delivered=%d dropped=%d", sub.SubscriptionID(), sub.Delivered(), sub.Dropped())
-	sub.Unsubscribe()
-}
-
-func main() {
-	db, err := sqlx.Open("clickhouse", database)
-	if err != nil {
-		log.Fatal(err)
-	}
-	db.MustExec(schema)
-	time.Sleep(2 * time.Second)
-
 	for {
-		go run(db)
+		go startCallbackSub(ctx, m, subInterval, 0, &q, ch, nodes[0])
+		go startCallbackSub(ctx, m, subInterval, 0, &q, ch, nodes[1])
+		go startCallbackSub(ctx, m, subInterval, 0, &q, ch, nodes[2])
+		go startCallbackSub(ctx, m, subInterval, 0, &q, ch, nodes[3])
+		go startCallbackSub(ctx, m, subInterval, 0, &q, ch, nodes[4])
+		go startCallbackSub(ctx, m, subInterval, 0, &q, ch, nodes[5])
+		go startCallbackSub(ctx, m, subInterval, 0, &q, ch, nodes[6])
+		go startCallbackSub(ctx, m, subInterval, 0, &q, ch, nodes[7])
+		<-ctx.Done()
 		<-time.After(time.Second)
 	}
 	log.Printf("Exited for loop\n")

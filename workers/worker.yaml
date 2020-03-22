@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: collector
+  name: worker
   labels:
-    app: collector
+    app: worker
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: collector
+      app: worker
   template:
     metadata:
       labels:
-        app: collector
+        app: worker
     spec:
       containers:
-      - name: collector
-        image: f0m41h4u7/owl-collector 
+      - name: worker
+        image: f0m41h4u7/owl-worker 
         ports:
         - containerPort: 8888
