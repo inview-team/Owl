@@ -33,7 +33,7 @@ type Metric struct {
 	Value     float64   `db:"value"`
 }
 
-func run(nodeID string, db *sqlx.DB) {
+func run(db *sqlx.DB) {
 	var (
 		endpoint = opcserver
 		policy   = "None"
