@@ -1,11 +1,12 @@
 <template>
   <div class="container">
-    <h1>Logs</h1>
+    <h1 v-if="currentTab == 'Alarms' ">Alarms</h1>
+    <h1 v-else>Logs</h1>
     <ul class="nav nav-tabs">
-      <li role="presentation" @click="currentTab='Alarms'">
+      <li role="presentation" @click="getAlarms">
         <a href="#">Alarms</a>
       </li>
-      <li role="presentation" @click="currentTab='Logs'">
+      <li role="presentation" @click="getLogs">
         <a href="#">Logs</a>
       </li>
     </ul>
@@ -61,18 +62,21 @@
        },
       methods: {
         getAlarms() {
-            axios.get(`http://localhost:3000/alarm`)
+          this.currentTab = "Alarms";
+
+            axios.get(`http://localhost:5000/alarms`)
                 .then( (res => {
-                  this.alarms = res.data;
+                  this.alarms = res.data.alarms;
                 }))
                 .catch( (error) => {
                   console.error(error);
                 })
         },
         getLogs(){
-            axios.get(`http://localhost:3000/logs`)
+          this.currentTab = "Logs"
+            axios.get(`http://localhost:5000/logs`)
                 .then( (res => {
-                  this.logs = res.data;
+                  this.logs = res.data.logs;
                 }))
                 .catch( (error) => {
                   console.error(error);
@@ -80,8 +84,7 @@
         }
       },
       created() {
-         this.getAlarms()
-         this.getLogs()
+         this.getAlarms();
       }
 
     }
