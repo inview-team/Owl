@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: metric-analyze
+  labels:
+    app: metrics
+spec:
+  containers:
+  - name: metric-analyze 
+    image: f0m41h4u7/owl-metrics

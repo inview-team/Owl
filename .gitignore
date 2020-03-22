@@ -1,5 +1,6 @@
 backup*
-collector/build.sh
-collector/reset.sh
-opc_ua_server/build.sh
-opc_ua_server/reset.sh
+*build.sh
+*reset.sh
+*Dockerfile
+config*
+*log

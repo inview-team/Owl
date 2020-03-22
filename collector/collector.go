@@ -33,7 +33,7 @@ type Metric struct {
 	Value     float64   `db:"value"`
 }
 
-func run(nodeID string, db *sqlx.DB) {
+func run(db *sqlx.DB) {
 	var (
 		endpoint = opcserver
 		policy   = "None"
@@ -90,8 +90,14 @@ func run(nodeID string, db *sqlx.DB) {
 		log.Printf("error: sub=%d err=%s", sub.SubscriptionID(), err.Error())
 	})
 
-	go startCallbackSub(ctx, m, subInterval, 0, db, nodeID)
-	go startChanSub(ctx, m, subInterval, 0, db, nodeID)
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[0])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[1])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[2])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[3])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[4])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[5])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[6])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[7])
 
 	<-ctx.Done()
 }
@@ -125,35 +131,6 @@ func startCallbackSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag
 	<-ctx.Done()
 }
 
-func startChanSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag time.Duration, db *sqlx.DB, node string) {
-	ch := make(chan *monitor.DataChangeMessage, 16)
-	sub, err := m.ChanSubscribe(ctx, &opcua.SubscriptionParameters{Interval: interval}, ch, node)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer cleanup(sub)
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case msg := <-ch:
-			if msg.Error != nil {
-				log.Printf("[channel ] sub=%d error=%s", sub.SubscriptionID(), msg.Error)
-			} else {
-				log.Printf("[channel ] sub=%d ts=%s node=%s value=%v", sub.SubscriptionID(), msg.SourceTimestamp.UTC().Format(time.RFC3339), msg.NodeID, msg.Value.Value())
-
-				tx := db.MustBegin()
-				tx.MustExec("INSERT INTO metrics (name, timestamp, value) VALUES ($1, $2, $3)", node, msg.SourceTimestamp, msg.Value.Value())
-				tx.Commit()
-			}
-			time.Sleep(lag)
-		}
-	}
-}
-
 func cleanup(sub *monitor.Subscription) {
 	log.Printf("stats: sub=%d delivered=%d dropped=%d", sub.SubscriptionID(), sub.Delivered(), sub.Dropped())
 	sub.Unsubscribe()
@@ -168,14 +145,8 @@ func main() {
 	time.Sleep(2 * time.Second)
 
 	for {
-		go run(nodes[0], db)
-		go run(nodes[1], db)
-		go run(nodes[2], db)
-		go run(nodes[3], db)
-		go run(nodes[4], db)
-		go run(nodes[5], db)
-		go run(nodes[6], db)
-		go run(nodes[7], db)
+		go run(db)
 		<-time.After(time.Second)
 	}
+	log.Printf("Exited for loop\n")
 }
