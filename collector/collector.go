@@ -90,7 +90,14 @@ func run(nodeID string, db *sqlx.DB) {
 		log.Printf("error: sub=%d err=%s", sub.SubscriptionID(), err.Error())
 	})
 
-	go startCallbackSub(ctx, m, subInterval, 0, db, nodeID)
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[0])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[1])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[2])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[3])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[4])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[5])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[6])
+	go startCallbackSub(ctx, m, subInterval, 0, db, nodes[7])
 
 	<-ctx.Done()
 }
@@ -138,16 +145,8 @@ func main() {
 	time.Sleep(2 * time.Second)
 
 	for {
-		go run(nodes[0], db)
-		go run(nodes[1], db)
-		go run(nodes[2], db)
-		go run(nodes[3], db)
-		go run(nodes[4], db)
-		go run(nodes[5], db)
-		go run(nodes[6], db)
-		go run(nodes[7], db)
+		go run(db)
 		<-time.After(time.Second)
-		log.Printf("Next try\n")
 	}
 	log.Printf("Exited for loop\n")
 }
