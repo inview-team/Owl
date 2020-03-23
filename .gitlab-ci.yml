@@ -55,14 +55,14 @@ build opcuaserver:
         #    changes:
         #      - clickhouse.yaml
 
-deploy opcuaserver:
-  stage: deploy
-  script:
-    - kubectl delete -f ./opc_ua_server/opc.yaml
-    - kubectl create -f ./opc_ua_server/opc.yaml
-  only:
-    changes:
-      - opc_ua_server/*
+#deploy opcuaserver:
+  #stage: deploy
+  #script:
+    #- kubectl delete -f ./opc_ua_server/opc.yaml
+    #- kubectl create -f ./opc_ua_server/opc.yaml
+  #only:
+    #changes:
+      #- opc_ua_server/*
 
 deploy collector:
   stage: deploy
