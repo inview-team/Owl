@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: worker
-        image: f0m41h4u7/owl-worker 
+        image: inviewteam/owl-worker 
         ports:
         - containerPort: 8888

@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: collector
-        image: f0m41h4u7/owl-collector 
+        image: inviewteam/owl-collector 
         ports:
         - containerPort: 8888

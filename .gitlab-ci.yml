@@ -31,7 +31,7 @@ build worker:
 build opcuaserver:
   stage: build
   script:
-    - docker build -t ${DOCKER_TEAM}opc-server ./opc_ua_server
+    - docker build -t ${DOCKER_TEAM}/opc-server ./opc_ua_server
     - docker push ${DOCKER_TEAM}/opc-server
   only:
     changes:

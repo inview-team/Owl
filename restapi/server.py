@@ -1,6 +1,6 @@
 import os
 from flask import Flask, jsonify, request
-from restapi.model import db,init_db, Alarms, Logs, Settings
+from model import db,init_db, Alarms, Logs, Settings
 from flask_cors import CORS
 from dotenv import load_dotenv, find_dotenv
 
@@ -53,10 +53,11 @@ def get_alarms():
         alarm_request = Alarms(id=None, time=time, info=info)
         db.session.add(alarm_request)
         db.session.commit()
+        return jsonify({'message':'Alarm added'})
     else:
         records = Alarms.query.all()
-    return jsonify({'alarms': [record.serialize() for record in records]})
-
+        return jsonify({'alarms': [record.serialize() for record in records]})
+    
 @app.route('/logs',methods=['GET','POST'])
 def get_logs():
     if request.method == 'POST':

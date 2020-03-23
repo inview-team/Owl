@@ -7,7 +7,7 @@ metadata:
 spec:
   containers:
   - name: opc-server 
-    image: f0m41h4u7/opc-server
+    image: inviewteam/opc-server
 ---
 apiVersion: v1
 kind: Service
