@@ -1,11 +1,3 @@
-image: gitlab/dind
-
-services:
-  - docker:dind
-
-variables:
-  DOCKER_HOST: tcp://docker:2375
-
 stages:
   - build
   - deploy
@@ -40,23 +32,23 @@ build opcuaserver:
     changes:
       - opc_ua_server/*
 
-deploy rabbitmq:
-  stage: deploy
-  script:
-    - kubectl delete -f rabbitmq.yaml
-    - kubectl create -f rabbitmq.yaml  
-  only:
-    changes:
-      - rabbitmq*
+        #deploy rabbitmq:
+        #  stage: deploy
+        #  script:
+        #    - kubectl delete -f rabbitmq.yaml
+        #    - kubectl create -f rabbitmq.yaml  
+        #  only:
+        #    changes:
+        #      - rabbitmq*
 
-deploy clickhouse:
-  stage: deploy
-  script:
-    - kubectl delete -f clickhouse.yaml
-    - kubectl create -f clickhouse.yaml             
-  only:
-    changes:
-      - clickhouse.yaml
+        #deploy clickhouse:
+        #  stage: deploy
+        #  script:
+        #    - kubectl delete -f clickhouse.yaml
+        #    - kubectl create -f clickhouse.yaml             
+        #  only:
+        #    changes:
+        #      - clickhouse.yaml
 
 deploy opcuaserver:
   stage: deploy
