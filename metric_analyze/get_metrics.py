@@ -13,7 +13,7 @@ while True:
         currNode = nodes.get(mt[0])
         cmin = min.get(currNode)
         cmax = max.get(currNode)
-        if (int(mt[2]) < cmin ) or (int(mt[2]) > cmax):
+        if (float(mt[2]) < cmin ) or (float(mt[2]) > cmax):
             # send alarm
-            data = {'': currNode, '': int(mt[2])}
+            data = {'': currNode, '': float(mt[2])}
             r = requests.post(url = 'localhost:5000/alarms', data = data)

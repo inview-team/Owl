@@ -1,0 +1,86 @@
+stages:
+  - build
+  - deploy
+
+build collector:
+  stage: build
+  script:
+    - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+    - docker build -t ${DOCKER_TEAM}/owl-collector ./collector
+    - docker push ${DOCKER_TEAM}/owl-collector
+  only:
+    changes:
+      - collector/* 
+
+build worker:
+  stage: build
+  script:
+    - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+    - docker build -t ${DOCKER_TEAM}/owl-worker ./worker
+    - docker push ${DOCKER_TEAM}/owl-worker
+  only:
+    changes:
+      - worker/*
+
+build opcuaserver:
+  stage: build
+  script:
+    - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+    - docker build -t ${DOCKER_TEAM}opc-server ./opc_ua_server
+    - docker push ${DOCKER_TEAM}/opc_ua_server
+  only:
+    changes:
+      - opc_ua_server/*
+
+deploy rabbitmq:
+  stage: deploy
+  script:
+    - kubectl delete -f rabbitmq.yaml
+    - kubectl create -f rabbitmq.yaml  
+  only:
+    changes:
+      - rabbitmq*
+
+deploy clickhouse:
+  stage: deploy
+  script:
+    - kubectl delete -f clickhouse.yaml
+    - kubectl create -f clickhouse.yaml             
+  only:
+    changes:
+      - clickhouse.yaml
+
+deploy opcuaserver:
+  stage: deploy
+  script:
+    - kubectl delete -f ./opc_ua_server/opc.yaml
+    - kubectl create -f ./opc_ua_server/opc.yaml
+  only:
+    changes:
+      - opc_ua_server/*
+
+deploy collector:
+  stage: deploy
+  script:
+    - kubectl delete -f ./collector/collector.yaml
+    - kubectl create -f ./collector/collector.yaml 
+  only:
+    changes:
+      - collector/*
+
+deploy worker:
+  stage: deploy
+  script:
+    - kubectl delete -f ./worker/worker.yaml
+    - kubectl create -f ./worker/worker.yaml  
+  only:
+    changes:
+      - worker/*
+
+deploy analyzer:
+  stage: deploy
+  script:
+    - python3 ./metric_analyze/get_metrics.py
+  only:
+    changes:
+      - metric_analyze/*
