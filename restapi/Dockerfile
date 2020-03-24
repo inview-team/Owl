@@ -10,4 +10,4 @@ RUN venv/bin/pip3 install gunicorn
 
 
 EXPOSE 5000
-CMD ["python3", "server.py"]
+ENTRYPOINT ["python3", "server.py"]
