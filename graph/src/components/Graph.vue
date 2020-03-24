@@ -1,27 +1,27 @@
 <template>
   <div class="container">
     <h1>Graphs</h1>
-    <p>{{metrics}}</p>
   </div>
 </template>
 
 <script>
 
-    export default {
-      data: {
-        return() {
-          metrics = []
-        }
+export default {
+  data() {
+    return {
+      return() {
       },
-      methods: {
-        getData() {
+    };
+  },
+  methods: {
+    getData() {
 
-        }
-      },
-      created() {
-        this.getData()
-      }
-    }
+    },
+  },
+  created() {
+    this.getData();
+  },
+};
 </script>
 
 <style scoped>

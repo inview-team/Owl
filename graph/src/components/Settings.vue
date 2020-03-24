@@ -3,7 +3,7 @@
 
     <h1>Settings</h1>
     <hr><br>
-       <button type="button" class="btn btn-success btn-sm"  v-b-modal.settings-modal>New Settings</button>
+       <button class="btn btn-success btn-sm" v-b-modal.settings-modal>New Settings</button>
     <div>
       <table class="table table-hover">
           <thead>
@@ -66,79 +66,77 @@
 </template>
 
 <script>
-  import axios from 'axios';
+import axios from 'axios';
 
-    export default {
-        data() {
-          return {
-            test: [],
-            info: [],
-            variants: ['Pressure','Humidity','Room Temperature','Working area Temperature', 'pH', 'Weight', 'Fluid flow', 'CO2'],
-            editSettingsForm: {
-              metric: '',
-              from: null,
-              to: null,
-            }
-          }
-        },
-      methods: {
-          getInfo() {
-            axios.get(`http://localhost:5000/settings`)
-                .then( (res => {
-                  this.info = res.data.settings;
-                }))
-                .catch( (error) => {
-                  console.error(error);
-                })
-          },
-          initForm(){
-            this.editSettingsForm.metric = '';
-            this.editSettingsForm.from = null;
-            this.editSettingsForm.to = null;
-          },
-          updateSettings(payload, id) {
-            axios.put('http://localhost:5000/settings_update/' + id, payload)
-              .then((responce) => {
-                this.getInfo();
-                console.log(responce);
-
-              })
-              .catch((error) => {
-                console.log(error);
-                this.getInfo();
-              })
-                    const today = new Date();
-                    const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
-                    const time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-                    const dateTime = date +' '+ time;
-            axios.post('http://localhost:5000/logs', {
-              'time': dateTime,
-              'info': `Update ${this.editSettingsForm.metric}`
-            })
-
-          },
-          onSubmit(evt){
-            evt.preventDefault()
-            this.$refs.editSettingsModal.hide();
-            console.log(this.editSettingsForm.metric)
-            let metrId = this.info.find(inf => inf.metric === this.editSettingsForm.metric).id
-            const payload = {
-              id: metrId,
-              metric: this.editSettingsForm.metric,
-              from: this.editSettingsForm.from,
-              to: this.editSettingsForm.to,
-            }
-            this.updateSettings(payload, metrId)
-            this.initForm()
-          },
-          onReset(evt) {
-            evt.preventDefault()
-            this.$refs.editSettingsModal.hide()
-            this.initForm()
-          }
+export default {
+  data() {
+    return {
+      test: [],
+      info: [],
+      variants: ['Pressure', 'Humidity', 'Room Temperature', 'Working area Temperature', 'pH', 'Weight', 'Fluid flow', 'CO2'],
+      editSettingsForm: {
+        metric: '',
+        from: null,
+        to: null,
       },
-      created() {
+    };
+  },
+  methods: {
+    getInfo() {
+      axios.get('http://localhost:5000/settings')
+        .then(((res) => {
+          this.info = res.data.settings;
+        }))
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+    initForm() {
+      this.editSettingsForm.metric = '';
+      this.editSettingsForm.from = null;
+      this.editSettingsForm.to = null;
+    },
+    updateSettings(payload, id) {
+      axios.put(`http://localhost:5000/settings_update/${id}`, payload)
+        .then((responce) => {
           this.getInfo();
-      }
-    }
+          console.log(responce);
+        })
+        .catch((error) => {
+          console.log(error);
+          this.getInfo();
+        });
+      const today = new Date();
+      const date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+      const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+      const dateTime = `${date} ${time}`;
+      axios.post('http://localhost:5000/logs', {
+        time: dateTime,
+        info: `Update ${this.editSettingsForm.metric}`,
+      });
+    },
+    onSubmit(evt) {
+      evt.preventDefault();
+      this.$refs.editSettingsModal.hide();
+      console.log(this.editSettingsForm.metric);
+      const metrId = this.info.find(inf => inf.metric === this.editSettingsForm.metric).id;
+      const payload = {
+        id: metrId,
+        metric: this.editSettingsForm.metric,
+        from: this.editSettingsForm.from,
+        to: this.editSettingsForm.to,
+      };
+      this.updateSettings(payload, metrId);
+      this.initForm();
+    },
+    onReset(evt) {
+      evt.preventDefault();
+      this.$refs.editSettingsModal.hide();
+      this.initForm();
+    },
+  },
+  created() {
+    this.getInfo();
+  },
+};
 </script>

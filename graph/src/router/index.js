@@ -23,13 +23,13 @@ export default new Router({
     {
       path: '/settings',
       name: 'Settings',
-      component: Settings
+      component: Settings,
     },
     {
       path: '/logs',
       name: 'Logs',
-      component: Logs
-    }
+      component: Logs,
+    },
   ],
   mode: 'history',
 });

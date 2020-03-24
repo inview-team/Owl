@@ -8,11 +8,11 @@ import router from './router';
 
 Vue.config.productionTip = false;
 
-Vue.use(BootstrapVue)
+Vue.use(BootstrapVue);
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
   router,
+  el: '#app',
   components: { App },
   template: '<App/>',
 });

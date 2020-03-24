@@ -1,10 +1,10 @@
 import os
 from flask import Flask, jsonify, request
-from model import db,init_db, Alarms, Logs, Settings
+from restapi.model import db,init_db, Alarms, Logs, Settings
 from flask_cors import CORS
 from dotenv import load_dotenv, find_dotenv
 
-from clickhouse_driver import connect
+#from clickhouse_driver import connect
 
 '''nodes = {"ns=2;i=9": "pressure", "ns=2;i=10": "humidity", "ns=2;i=11": "roomTemperature", "ns=2;i=12": "workingAreaTemperatur", "ns=2;i=13": "pH", "ns=2;i=14": "weight", "ns=2;i=15": "fluidFlow", "ns=2;i=16": "co2"}
 
@@ -53,11 +53,11 @@ def get_alarms():
         alarm_request = Alarms(id=None, time=time, info=info)
         db.session.add(alarm_request)
         db.session.commit()
-        return jsonify({'message':'Alarm added'})
+        return jsonify({'message': 'Alarm added'})
     else:
         records = Alarms.query.all()
         return jsonify({'alarms': [record.serialize() for record in records]})
-    
+
 @app.route('/logs',methods=['GET','POST'])
 def get_logs():
     if request.method == 'POST':
