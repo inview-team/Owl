@@ -77,7 +77,14 @@ build analyzer:
 
 deploy collector:
   stage: deploy_2
+  image: alpine:3.7
   script:
+    - apk update  && apk add --no-cache curl
+    - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
+    - mkdir -p $HOME/.kube
+    - echo -n $KUBE_CONFIG | base64 -d > $HOME/.kube/config
+    - kubectl config view
     - kubectl delete -f ./collector/collector.yaml
     - kubectl create -f ./collector/collector.yaml 
   only:
@@ -87,6 +94,12 @@ deploy collector:
 deploy worker:
   stage: deploy_2
   script:
+    - apk update  && apk add --no-cache curl
+    - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
+    - mkdir -p $HOME/.kube
+    - echo -n $KUBE_CONFIG | base64 -d > $HOME/.kube/config
+    - kubectl config view
     - kubectl delete -f ./worker/worker.yaml
     - kubectl create -f ./worker/worker.yaml  
   only:
@@ -96,6 +109,12 @@ deploy worker:
 deploy analyzer:
   stage: deploy_3
   script:
+    - apk update  && apk add --no-cache curl
+    - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
+    - mkdir -p $HOME/.kube
+    - echo -n $KUBE_CONFIG | base64 -d > $HOME/.kube/config
+    - kubectl config view
     - kubectl delete -f ./metric_analyze/analyzer.yaml
     - kubectl create -f ./metric_analyze/analyzer.yaml
   only:
