@@ -7,19 +7,19 @@ stages:
   - build
     #  - deploy_1
   - deploy_2
-  - deploy_3
+    #  - deploy_3
 
 before_script:
   - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
 
-build collector:
-  stage: build
-  script:
-    - docker build -t ${DOCKER_TEAM}/owl-collector ./collector
-    - docker push ${DOCKER_TEAM}/owl-collector
-  only:
-    changes:
-      - collector/* 
+    #build collector:
+    #  stage: build
+    #  script:
+    #    - docker build -t ${DOCKER_TEAM}/owl-collector ./collector
+    #    - docker push ${DOCKER_TEAM}/owl-collector
+    #  only:
+    #    changes:
+    #      - collector/* 
 
 build worker:
   stage: build
@@ -30,14 +30,14 @@ build worker:
     changes:
       - worker/*
 
-build analyzer:
-  stage: build
-  script:
-    - docker build -t ${DOCKER_TEAM}/owl-analyzer ./metric_analyze
-    - docker push ${DOCKER_TEAM}/owl-analyzer
-  only:
-    changes:
-      - metric_analyze/*
+        #build analyzer:
+        #  stage: build
+        #  script:
+        #    - docker build -t ${DOCKER_TEAM}/owl-analyzer ./metric_analyze
+        #    - docker push ${DOCKER_TEAM}/owl-analyzer
+        #  only:
+        #    changes:
+        #      - metric_analyze/*
 
 #build opcuaserver:
   #stage: build
@@ -75,27 +75,26 @@ build analyzer:
     #changes:
       #- opc_ua_server/*
 
-deploy collector:
-  stage: deploy_2
-  image: alpine:3.7
-  script:
-    - apk update  && apk add --no-cache curl docker
-    - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-    - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
-    - mkdir -p $HOME/.kube
-    - echo -n $KUBE_CONFIG | base64 -d > $HOME/.kube/config
-    - kubectl config view
-    - kubectl delete -f ./collector/collector.yaml
-    - kubectl create -f ./collector/collector.yaml 
-  only:
-    changes:
-      - collector/*
+        #deploy collector:
+        #  stage: deploy_2
+        #  image: alpine:3.7
+        #  script:
+        #    - apk update  && apk add --no-cache curl docker
+        #    - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+        #    - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
+        #    - mkdir -p $HOME/.kube
+        #    - echo -n $KUBE_CONFIG | base64 -d > $HOME/.kube/config
+        #    - kubectl config view
+        #    - kubectl delete -f ./collector/collector.yaml
+        #    - kubectl create -f ./collector/collector.yaml 
+        #  only:
+        #    changes:
+        #      - collector/*
 
 deploy worker:
   stage: deploy_2
-  image: alpine:3.7
   script:
-    - apk update  && apk add --no-cache curl docker
+    - apt -y update  && apt -y install curl
     - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
     - mkdir -p $HOME/.kube
@@ -107,18 +106,18 @@ deploy worker:
     changes:
       - worker/*
 
-deploy analyzer:
-  stage: deploy_3
-  image: alpine:3.7
-  script:
-    - apk update  && apk add --no-cache curl docker
-    - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-    - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
-    - mkdir -p $HOME/.kube
-    - echo -n $KUBE_CONFIG | base64 -d > $HOME/.kube/config
-    - kubectl config view
-    - kubectl delete -f ./metric_analyze/analyzer.yaml
-    - kubectl create -f ./metric_analyze/analyzer.yaml
-  only:
-    changes:
-      - metric_analyze/*
+        #deploy analyzer:
+        #  stage: deploy_3
+        #  image: alpine:3.7
+        #  script:
+        #    - apk update  && apk add --no-cache curl docker
+        #    - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+        #    - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
+        #    - mkdir -p $HOME/.kube
+        #    - echo -n $KUBE_CONFIG | base64 -d > $HOME/.kube/config
+        #    - kubectl config view
+        #    - kubectl delete -f ./metric_analyze/analyzer.yaml
+        #    - kubectl create -f ./metric_analyze/analyzer.yaml
+        #  only:
+        #    changes:
+        #      - metric_analyze/*
