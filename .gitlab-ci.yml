@@ -100,8 +100,8 @@ deploy worker:
     - mkdir -p $HOME/.kube
     - echo -n $KUBE_CONFIG | base64 -d > $HOME/.kube/config
     - kubectl config view
-    - kubectl delete -f ./worker/worker.yaml
-    - kubectl create -f ./worker/worker.yaml  
+    - kubectl delete -f /home/Owl/worker/worker.yaml
+    - kubectl create -f /home/Owl/worker/worker.yaml  
   only:
     changes:
       - worker/*
