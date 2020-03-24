@@ -109,7 +109,7 @@ deploy worker:
 deploy analyzer:
   stage: deploy_3
   script:
-    - apk update  && apk add --no-cache curl
+    - apk update  && apk add --no-cache curl docker
     - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
     - mkdir -p $HOME/.kube
