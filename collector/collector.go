@@ -56,7 +56,7 @@ func startCallbackSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag
 		node )
 
 	if err != nil {
-		log.Fatal(err)
+		failOnError(err, "Failed to subscribe")
 	}
 
 	defer cleanup(sub)
@@ -66,7 +66,10 @@ func startCallbackSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag
 
 func cleanup(sub *monitor.Subscription) {
 	log.Printf("stats: sub=%d delivered=%d dropped=%d", sub.SubscriptionID(), sub.Delivered(), sub.Dropped())
-	sub.Unsubscribe()
+	err := sub.Unsubscribe()
+	if err != nil {
+		failOnError(err, "Failed to unsubscribe")
+	}
 }
 
 func main() {
@@ -156,5 +159,4 @@ func main() {
 		<-ctx.Done()
 		<-time.After(time.Second)
 	}
-	log.Printf("Exited for loop\n")
 }

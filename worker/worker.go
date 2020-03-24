@@ -18,12 +18,6 @@ CREATE TABLE IF NOT EXISTS metrics (
     value String
 ) engine=Memory`
 
-type Metric struct {
-	Name      string    `db:"name"`
-	Timestamp string    `db:"timestamp"`
-	Value     string    `db:"value"`
-}
-
 func failOnError(err error, msg string) {
         if err != nil {
                 log.Fatalf("%s: %s", msg, err)
@@ -83,13 +77,20 @@ func main() {
 			msg := strings.Split(string(d.Body), "; ")
 			tx := db.MustBegin()
 			tx.MustExec("INSERT INTO metrics (name, timestamp, value) VALUES ($1, $2, $3)", msg[0], msg[1], msg[2])
-			tx.Commit()
+			err := tx.Commit()
+			if err != nil {
+				failOnError(err, "Failed to send metrics to Clickhouse")
+			}
 
                         dot_count := bytes.Count(d.Body, []byte("."))
                         t := time.Duration(dot_count)
                         time.Sleep(t * time.Second)
                         log.Printf("Done")
-                        d.Ack(false)
+
+			err = d.Ack(false)
+			if err != nil{
+				failOnError(err, "Failed to ack message")
+			}
                 }
         }()
 
