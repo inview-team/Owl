@@ -79,7 +79,7 @@ deploy collector:
   stage: deploy_2
   image: alpine:3.7
   script:
-    - apk update  && apk add --no-cache curl
+    - apk update  && apk add --no-cache curl docker
     - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
     - mkdir -p $HOME/.kube
@@ -93,8 +93,9 @@ deploy collector:
 
 deploy worker:
   stage: deploy_2
+  image: alpine:3.7
   script:
-    - apk update  && apk add --no-cache curl
+    - apk update  && apk add --no-cache curl docker
     - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
     - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
     - mkdir -p $HOME/.kube
@@ -108,6 +109,7 @@ deploy worker:
 
 deploy analyzer:
   stage: deploy_3
+  image: alpine:3.7
   script:
     - apk update  && apk add --no-cache curl docker
     - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
