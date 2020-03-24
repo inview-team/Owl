@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: analyzer
+  labels:
+    app: analyzer
+spec:
+  containers:
+  - name: analyzer 
+    image: inviewteam/owl-analyzer

@@ -5,7 +5,9 @@ services:
 
 stages:
   - build
-  - deploy
+    #  - deploy_1
+  - deploy_2
+  - deploy_3
 
 before_script:
   - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
@@ -28,6 +30,15 @@ build worker:
     changes:
       - worker/*
 
+build analyzer:
+  stage: build
+  script:
+    - docker build -t ${DOCKER_TEAM}/owl-analyzer ./metric_analyze
+    - docker push ${DOCKER_TEAM}/owl-analyzer
+  only:
+    changes:
+      - metric_analyze/*
+
 #build opcuaserver:
   #stage: build
   #script:
@@ -38,7 +49,7 @@ build worker:
       #- opc_ua_server/*
 
         #deploy rabbitmq:
-        #  stage: deploy
+        #  stage: deploy_1
         #  script:
         #    - kubectl delete -f rabbitmq.yaml
         #    - kubectl create -f rabbitmq.yaml  
@@ -47,7 +58,7 @@ build worker:
         #      - rabbitmq*
 
         #deploy clickhouse:
-        #  stage: deploy
+        #  stage: deploy_1
         #  script:
         #    - kubectl delete -f clickhouse.yaml
         #    - kubectl create -f clickhouse.yaml             
@@ -56,7 +67,7 @@ build worker:
         #      - clickhouse.yaml
 
 #deploy opcuaserver:
-  #stage: deploy
+  #stage: deploy_1
   #script:
     #- kubectl delete -f ./opc_ua_server/opc.yaml
     #- kubectl create -f ./opc_ua_server/opc.yaml
@@ -65,7 +76,7 @@ build worker:
       #- opc_ua_server/*
 
 deploy collector:
-  stage: deploy
+  stage: deploy_2
   script:
     - kubectl delete -f ./collector/collector.yaml
     - kubectl create -f ./collector/collector.yaml 
@@ -74,7 +85,7 @@ deploy collector:
       - collector/*
 
 deploy worker:
-  stage: deploy
+  stage: deploy_2
   script:
     - kubectl delete -f ./worker/worker.yaml
     - kubectl create -f ./worker/worker.yaml  
@@ -83,10 +94,10 @@ deploy worker:
       - worker/*
 
 deploy analyzer:
-  stage: deploy
+  stage: deploy_3
   script:
-    - pip3 install -r ./metric_analyze/requirements.txt
-    - python3 ./metric_analyze/get_metrics.py
+    - kubectl delete -f ./metric_analyze/analyzer.yaml
+    - kubectl create -f ./metric_analyze/analyzer.yaml
   only:
     changes:
       - metric_analyze/*

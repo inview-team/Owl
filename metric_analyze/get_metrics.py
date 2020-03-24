@@ -7,7 +7,7 @@ min = {"pressure": 1001, "humidity": 25, "roomTemperature":15, "workingAreaTempe
 max = {"pressure": 1099, "humidity": 40, "roomTemperature":46, "workingAreaTemperature":500, "pH":8, "weight":900, "fluidFlow":50, "co2":30}
 
 while True:
-    client = Client('10.244.0.133')
+    client = Client('clickhouse-svc')
     metrics = client.execute('select * from metrics')
 
     for mt in metrics:
