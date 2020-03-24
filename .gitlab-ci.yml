@@ -28,14 +28,14 @@ build worker:
     changes:
       - worker/*
 
-build opcuaserver:
-  stage: build
-  script:
-    - docker build -t ${DOCKER_TEAM}/opc-server ./opc_ua_server
-    - docker push ${DOCKER_TEAM}/opc-server
-  only:
-    changes:
-      - opc_ua_server/*
+#build opcuaserver:
+  #stage: build
+  #script:
+    #- docker build -t ${DOCKER_TEAM}/opc-server ./opc_ua_server
+    #- docker push ${DOCKER_TEAM}/opc-server
+  #only:
+    #changes:
+      #- opc_ua_server/*
 
         #deploy rabbitmq:
         #  stage: deploy
@@ -55,14 +55,14 @@ build opcuaserver:
         #    changes:
         #      - clickhouse.yaml
 
-deploy opcuaserver:
-  stage: deploy
-  script:
-    - kubectl delete -f ./opc_ua_server/opc.yaml
-    - kubectl create -f ./opc_ua_server/opc.yaml
-  only:
-    changes:
-      - opc_ua_server/*
+#deploy opcuaserver:
+  #stage: deploy
+  #script:
+    #- kubectl delete -f ./opc_ua_server/opc.yaml
+    #- kubectl create -f ./opc_ua_server/opc.yaml
+  #only:
+    #changes:
+      #- opc_ua_server/*
 
 deploy collector:
   stage: deploy
