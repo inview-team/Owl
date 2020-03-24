@@ -85,6 +85,7 @@ deploy worker:
 deploy analyzer:
   stage: deploy
   script:
+    - pip3 install -r ./metric_analyze/requirements.txt
     - python3 ./metric_analyze/get_metrics.py
   only:
     changes:
