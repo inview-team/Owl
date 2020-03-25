@@ -43,6 +43,8 @@ before_script:
 
 build worker:
   stage: build
+  tags:
+    - docker
   image:
     name: gitlab/dind
   variables:
@@ -119,6 +121,8 @@ build worker:
 
 deploy worker:
   stage: deploy_2
+  tags:
+    - k8s
   image:
     name: lachlanevenson/k8s-kubectl:latest
     entrypoint: ["/bin/sh", "-c"]
