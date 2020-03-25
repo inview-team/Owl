@@ -47,10 +47,6 @@ build worker:
     - docker
   image:
     name: gitlab/dind
-  variables:
-    DOCKER_HOST: tcp://localhost:2375
-  services:
-    - docker:dind
   script:
     - docker build -t ${DOCKER_TEAM}/owl-worker ./worker
     - docker push ${DOCKER_TEAM}/owl-worker
