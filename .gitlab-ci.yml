@@ -4,6 +4,7 @@ services:
   - docker:dind
 
 stages:
+  - test
   - build
     #  - deploy_1
   - deploy_2
@@ -20,6 +21,24 @@ before_script:
     #  only:
     #    changes:
     #      - collector/* 
+
+test worker:
+  stage: test
+  script:
+    - cd worker/
+    - docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v1.24.0 golangci-lint run -v
+  only:
+    changes:
+      - worker/worker.go
+
+test collector:
+  stage: test
+  script:
+    - cd collector/
+    - docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v1.24.0 golangci-lint run -v
+  only:
+    changes:
+      - collector/collector.go 
 
 build worker:
   stage: build
@@ -100,8 +119,8 @@ deploy worker:
     - mkdir -p $HOME/.kube
     - echo -n $KUBE_CONFIG | base64 -d > $HOME/.kube/config
     - kubectl config view
-    - kubectl delete -f /home/Owl/worker/worker.yaml
-    - kubectl create -f /home/Owl/worker/worker.yaml  
+    - kubectl delete -f ./worker.yaml
+    - kubectl create -f ./worker.yaml  
   only:
     changes:
       - worker/*
