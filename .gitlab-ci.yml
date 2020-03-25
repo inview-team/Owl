@@ -42,6 +42,13 @@ test collector:
 
 build worker:
   stage: build
+  image:
+    name: docker:latest
+    entrypoint: ["/bin/sh", "-c"]
+  variables:
+    DOCKER_HOST: tcp://localhost:2375
+  services:
+    - docker:dind
   script:
     - docker build -t ${DOCKER_TEAM}/owl-worker ./worker
     - docker push ${DOCKER_TEAM}/owl-worker
@@ -112,6 +119,9 @@ build worker:
 
 deploy worker:
   stage: deploy_2
+  image:
+    name: lachlanevenson/k8s-kubectl:latest
+    entrypoint: ["/bin/sh", "-c"]
   script:
     - apt-get -y install curl
     - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
