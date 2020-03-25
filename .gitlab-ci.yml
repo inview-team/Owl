@@ -44,8 +44,7 @@ before_script:
 build worker:
   stage: build
   image:
-    name: docker:latest
-    entrypoint: ["/bin/sh", "-c"]
+    name: gitlab/dind
   variables:
     DOCKER_HOST: tcp://localhost:2375
   services:
