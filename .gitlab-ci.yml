@@ -10,9 +10,6 @@ stages:
   - deploy_2
     #  - deploy_3
 
-before_script:
-  - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
-
     #build collector:
     #  stage: build
     #  script:
@@ -48,6 +45,7 @@ build worker:
   image:
     name: gitlab/dind
   script:
+    - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
     - docker build -t ${DOCKER_TEAM}/owl-worker ./worker
     - docker push ${DOCKER_TEAM}/owl-worker
   only:
