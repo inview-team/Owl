@@ -2,4 +2,4 @@
 
 OPC-UA metric collector and anomaly detector
 
-![alt text](https://raw.githubusercontent.com/InviewComp/Owl/Owl_architecture.jpg)
+![alt text](https://raw.githubusercontent.com/InviewComp/Owl/master/Owl_architecture.jpg)
