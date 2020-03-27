@@ -51,43 +51,44 @@
 </template>
 
 <script>
-  import axios from 'axios';
-    export default {
-       data() {
-         return {
-           alarms: [],
-           logs: [],
-           currentTab: "Alarms",
-         }
-       },
-      methods: {
-        getAlarms() {
-          this.currentTab = "Alarms";
+import axios from 'axios';
 
-            axios.get(`http://localhost:5000/alarms`)
-                .then( (res => {
-                  this.alarms = res.data.alarms;
-                }))
-                .catch( (error) => {
-                  console.error(error);
-                })
-        },
-        getLogs(){
-          this.currentTab = "Logs"
-            axios.get(`http://localhost:5000/logs`)
-                .then( (res => {
-                  this.logs = res.data.logs;
-                }))
-                .catch( (error) => {
-                  console.error(error);
-                })
-        }
-      },
-      created() {
-         this.getAlarms();
-      }
+export default {
+  data() {
+    return {
+      alarms: [],
+      logs: [],
+      currentTab: 'Alarms',
+    };
+  },
+  methods: {
+    getAlarms() {
+      this.currentTab = 'Alarms';
 
-    }
+      axios.get('http://localhost:5000/alarms')
+        .then(((res) => {
+          this.alarms = res.data.alarms;
+        }))
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+    getLogs() {
+      this.currentTab = 'Logs';
+      axios.get('http://localhost:5000/logs')
+        .then(((res) => {
+          this.logs = res.data.logs;
+        }))
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+  },
+  created() {
+    this.getAlarms();
+  },
+
+};
 </script>
 
 <style scoped>

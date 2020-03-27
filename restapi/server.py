@@ -1,10 +1,10 @@
 import os
 from flask import Flask, jsonify, request
-from restapi.model import db,init_db, Alarms, Logs, Settings
+from model import db,init_db, Alarms, Logs, Settings
 from flask_cors import CORS
 from dotenv import load_dotenv, find_dotenv
 
-from clickhouse_driver import connect
+#from clickhouse_driver import connect
 
 '''nodes = {"ns=2;i=9": "pressure", "ns=2;i=10": "humidity", "ns=2;i=11": "roomTemperature", "ns=2;i=12": "workingAreaTemperatur", "ns=2;i=13": "pH", "ns=2;i=14": "weight", "ns=2;i=15": "fluidFlow", "ns=2;i=16": "co2"}
 
@@ -14,10 +14,10 @@ cursor = conn.cursor()
 
 load_dotenv(find_dotenv())
 
-app = Flask(__name__)
-app.config.from_object(__name__)
+application = Flask(__name__)
+application.config.from_object(__name__)
 
-CORS(app, resources={r'/*': {'origins': '*'}})
+CORS(application, resources={r'/*': {'origins': '*'}})
 
 database_uri = 'mysql+pymysql://{dbuser}:{dbpass}@{dbhost}/{dbname}'.format(
     dbuser=os.environ['DBUSER'],
@@ -26,14 +26,14 @@ database_uri = 'mysql+pymysql://{dbuser}:{dbpass}@{dbhost}/{dbname}'.format(
     dbname=os.environ['DBNAME']
 )
 
-app.config.update(
+application.config.update(
     SQLALCHEMY_DATABASE_URI=database_uri,
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
 )
 
 
-db.init_app(app)
-with app.app_context():
+db.init_app(application)
+with application.app_context():
     init_db()
 
 
@@ -44,7 +44,7 @@ def get_metrics():
     metrics = cursor.fetchall()
 '''
 
-@app.route('/alarms',methods=['GET','POST'])
+@application.route('/alarms',methods=['GET','POST'])
 def get_alarms():
     if request.method == 'POST':
         time = str(request.json.get('time'))
@@ -53,11 +53,12 @@ def get_alarms():
         alarm_request = Alarms(id=None, time=time, info=info)
         db.session.add(alarm_request)
         db.session.commit()
+        return jsonify({'message': 'Alarm added'})
     else:
         records = Alarms.query.all()
-    return jsonify({'alarms': [record.serialize() for record in records]})
+        return jsonify({'alarms': [record.serialize() for record in records]})
 
-@app.route('/logs',methods=['GET','POST'])
+@application.route('/logs',methods=['GET','POST'])
 def get_logs():
     if request.method == 'POST':
         time =str(request.json.get('time'))
@@ -72,12 +73,12 @@ def get_logs():
         return jsonify({'logs': [record.serialize() for record in records]})
 
 
-@app.route('/settings', methods=['GET'])
+@application.route('/settings', methods=['GET'])
 def get_settings():
     records = Settings.query.all()
     return jsonify({'settings':[record.serialize() for record in records]})
 
-@app.route('/settings_update/<metric_id>',methods=['PUT'])
+@application.route('/settings_update/<metric_id>',methods=['PUT'])
 def update_settings(metric_id):
     responce = request.get_json()
     id=int(metric_id)
@@ -89,4 +90,4 @@ def update_settings(metric_id):
     db.session.commit()
 
 if __name__ == "__main__":
-    app.run()
+    application.run(host="0.0.0.0", port=1337)

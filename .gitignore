@@ -1,6 +1,4 @@
 backup*
-*build.sh
-*reset.sh
-*Dockerfile
-config*
+*.sh
 *log
+gitlab*.yaml
