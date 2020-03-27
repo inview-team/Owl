@@ -10,17 +10,19 @@ test_min={}
 test_max={}
 
 getData=False
-while !getData
+while getData != True:
     try:
-        r = requests.get(url='http://127.0.0.1:5000/settings')
+        r = requests.get(url='http://0.0.0.0:1337/settings')
         result= r.json()
         settings = result['settings']
         for i in range(len(settings)):
             test_min[settings[i]['metric']] = settings[i]['from']
             test_max[settings[i]['metric']] = settings[i]['to']
         getData=True
+    except:
+        print('Error')
 
-
+'''
 while True:
     client = Client('clickhouse-svc')
     metrics = client.execute('select * from metrics')
@@ -35,5 +37,6 @@ while True:
                     'Accept':'text/plain',
                     'Content-Encoding':'utf-8'}
             data = {'time': mt[1], 'info': currNode}
-            r = requests.post(url = 'http://127.0.0.1:5000/alarms', data = json.dumps(data), headers = headers)
+            r = requests.post(url = 'http://0.0.0.0:1337/alarms', data = json.dumps(data), headers = headers)
             print(r)
+            '''
