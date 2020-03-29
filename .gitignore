@@ -2,3 +2,4 @@ backup*
 *.sh
 *log
 gitlab*.yaml
+*.env
