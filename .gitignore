@@ -3,3 +3,4 @@ backup*
 *log
 gitlab*.yaml
 *.env
+*pycache*
