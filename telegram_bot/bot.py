@@ -32,6 +32,10 @@ def get_settings(message):
         reply_markup=keyboard
     )
 
+@bot.callback_query_handler(func=lambda call:True)
+def iq_callback(query):
+    data = query.data
+    print(data)
 
 bot.polling(none_stop=True, interval=0)
 
