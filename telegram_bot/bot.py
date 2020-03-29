@@ -1,7 +1,7 @@
 import telebot
 import os
 from dotenv import find_dotenv,load_dotenv
-from telegram_bot.service_functions import load_setting
+from service_functions import load_setting
 load_dotenv(find_dotenv())
 
 
@@ -14,12 +14,13 @@ def get_text_messages(message):
         bot.send_message(message.from_user.id, "Уху Уху")
     elif message.text == "/help":
         bot.send_message(message.from_user.id, "Привет, я сова")
+    elif message.text == '/settings':
+        settings(message)
     else:
         bot.send_message(message.from_user.id, "I don't know")
 
-@bot.message_handler(commands=['get_settings'])
-def get_settings(message):
-    result=load_setting()
+def settings(message):
+    result = load_setting()
     settings = result['settings']
     keyboard = telebot.types.InlineKeyboardMarkup()
     for i in range(len(settings)):
