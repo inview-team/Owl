@@ -1,7 +1,7 @@
 import telebot
 import os
 from dotenv import find_dotenv,load_dotenv
-from service_functions import load_setting
+from service_functions import load_setting, get_one_metric
 load_dotenv(find_dotenv())
 
 
@@ -14,17 +14,18 @@ def get_text_messages(message):
         bot.send_message(message.from_user.id, "Уху Уху")
     elif message.text == "/help":
         bot.send_message(message.from_user.id, "Привет, я сова")
+    elif message.text == '/settings':
+        settings(message)
     else:
         bot.send_message(message.from_user.id, "I don't know")
 
-@bot.message_handler(commands=['settings'])
-def get_settings(message):
-    result=load_setting()
+def settings(message):
+    result = load_setting()
     settings = result['settings']
     keyboard = telebot.types.InlineKeyboardMarkup()
     for i in range(len(settings)):
         keyboard.row(
-            telebot.types.InlineKeyboardButton(text=settings[i]['metric'], callback_data='get_info')
+            telebot.types.InlineKeyboardButton(text=settings[i]['metric'], callback_data=settings[i]['metric'])
         )
     bot.send_message(
         message.chat.id,
@@ -36,6 +37,16 @@ def get_settings(message):
 def iq_callback(query):
     data = query.data
     print(data)
+    result=get_one_metric(data)
+    answer = '<b>' + data + ':</b>\n\n' + \
+             'From: ' + str(result['from']) + '\n' + \
+             'To: ' + str(result['to'])
+    bot.send_message(
+        query.message.chat.id,
+        answer,
+        parse_mode='HTML'
+    )
+
 
 bot.polling(none_stop=True, interval=0)
 
