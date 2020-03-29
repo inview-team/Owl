@@ -1,7 +1,7 @@
 import telebot
 import os
 from dotenv import find_dotenv,load_dotenv
-from service_functions import load_setting
+from service_functions import load_setting, get_one_metric
 load_dotenv(find_dotenv())
 
 
@@ -25,7 +25,7 @@ def settings(message):
     keyboard = telebot.types.InlineKeyboardMarkup()
     for i in range(len(settings)):
         keyboard.row(
-            telebot.types.InlineKeyboardButton(text=settings[i]['metric'], callback_data='get_info')
+            telebot.types.InlineKeyboardButton(text=settings[i]['metric'], callback_data=settings[i]['metric'])
         )
     bot.send_message(
         message.chat.id,
@@ -37,6 +37,16 @@ def settings(message):
 def iq_callback(query):
     data = query.data
     print(data)
+    result=get_one_metric(data)
+    answer = '<b>' + data + ':</b>\n\n' + \
+             'From: ' + result['from'] + '\n' + \
+             'To: ' + result['from']
+    bot.send_message(
+        query.chat.id,
+        answer,
+        parse_mode='HTML'
+    )
+
 
 bot.polling(none_stop=True, interval=0)
 
