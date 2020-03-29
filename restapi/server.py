@@ -1,6 +1,6 @@
 import os
 from flask import Flask, jsonify, request
-from restapi.model import db,init_db, Alarms, Logs, Settings
+from model import db,init_db, Alarms, Logs, Settings
 from flask_cors import CORS
 from dotenv import load_dotenv, find_dotenv
 

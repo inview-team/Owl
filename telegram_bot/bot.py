@@ -1,7 +1,7 @@
 import telebot
 import os
 from dotenv import find_dotenv,load_dotenv
-from telegram_bot.service_functions import load_setting
+from service_functions import load_setting
 load_dotenv(find_dotenv())
 
 
@@ -17,7 +17,7 @@ def get_text_messages(message):
     else:
         bot.send_message(message.from_user.id, "I don't know")
 
-@bot.message_handler(commands=['get_settings'])
+@bot.message_handler(commands=['settings'])
 def get_settings(message):
     result=load_setting()
     settings = result['settings']
