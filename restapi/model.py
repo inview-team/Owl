@@ -64,6 +64,21 @@ class Settings(db.Model):
             'to': self.to_bord
         }
 
+class Telegram(db.Model):
+    __tablename__ = "telegram"
+    id=db.Column('id', db.Integer, primary_key=True)
+    chat_id = db.Column('chat_id', db.String)
+
+    def __init__(self, id, chat_id):
+        self.id = id
+        self.chat_id = chat_id
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'chat_id': self.chat_id
+        }
+
 def init_db():
     db.create_all()
 

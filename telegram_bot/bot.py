@@ -1,7 +1,7 @@
 import telebot
 import os
 from dotenv import find_dotenv,load_dotenv
-from service_functions import load_setting, get_one_metric
+from service_functions import load_setting, get_one_metric, add_new_admin
 load_dotenv(find_dotenv())
 
 
@@ -14,11 +14,10 @@ def get_text_messages(message):
         bot.send_message(message.from_user.id, "Уху Уху")
     elif message.text == "/help":
         bot.send_message(message.from_user.id, "Привет, я сова")
-    elif message.text == '/settings':
-        settings(message)
     else:
         bot.send_message(message.from_user.id, "I don't know")
 
+@bot.message_handler(commands=['settings'])
 def settings(message):
     result = load_setting()
     settings = result['settings']
@@ -32,6 +31,10 @@ def settings(message):
         'Get info about Settings',
         reply_markup=keyboard
     )
+
+@bot.message_handler(commands=['add_admin'])
+def add_admin(message):
+    add_new_admin(message.chat.id)
 
 @bot.callback_query_handler(func=lambda call:True)
 def iq_callback(query):

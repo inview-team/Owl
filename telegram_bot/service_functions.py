@@ -23,3 +23,8 @@ def get_one_metric(metric):
         except:
             print('Error')
     return result
+
+def add_new_admin(chat_id):
+    r=requests.post('http://127.0.0.1:1337/admin', data={'chat_id': chat_id})
+    result = r.json()
+    return result
