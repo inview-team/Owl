@@ -114,7 +114,7 @@ def update_settings(metric_id):
 
 # Telegram routes
 @application.route('/admin', methods=['POST'])
-def add_admin(admin):
+def add_admin():
     chat_id = str(request.json.get('chat_id'))
     admin_request = Telegram(id=None, chat_id=chat_id)
     db.session.add(admin_request)
