@@ -8,3 +8,15 @@ spec:
   containers:
   - name: analyzer 
     image: inviewteam/owl-analyzer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analyzer-svc
+spec:
+  selector:
+    app: analyzer
+  ports:
+    - protocol: TCP
+      port: 31337
+      targetPort: 31337
