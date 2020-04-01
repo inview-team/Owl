@@ -7,8 +7,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
+	"github.com/joho/godotenv"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,9 +32,6 @@ type Alarm struct {
 	Info string `json:"info"`
 }
 
-var settingsAddr = "http://127.0.0.1:1337/settings?metric="
-var alarmAddr = "http://127.0.0.1:1337/alarms"
-
 var nodes = map[string]string{
 	"ns=2;i=9":  "Pressure",
 	"ns=2;i=10": "Humidity",
@@ -51,7 +50,8 @@ func (mt *Metric) checkForAnomalies() {
 		err := fmt.Errorf("Invalid node value: %s\n", mt.Node)
 		log.Fatal(err)
 	}
-	addr := settingsAddr + currNode
+	log.Printf("Current node: %s\n", currNode)
+	addr := os.Getenv("RESTAPI_ADDRESS") + "settings/" + currNode
 
 	// Get settings for current node
 	settings, err := http.Get(addr)
@@ -94,6 +94,7 @@ func (mt *Metric) checkForAnomalies() {
 			log.Fatal(err)
 		}
 
+		alarmAddr := os.Getenv("RESTAPI_ADDRESS") + "alarms"
 		client := http.Client{}
 		req, err := http.NewRequest("POST", alarmAddr, bytes.NewReader(reqBody))
 		if err != nil {
@@ -113,7 +114,7 @@ func (mt *Metric) checkForAnomalies() {
 
 		defer resp.Body.Close()
 
-		log.Printf("Notification was sent! Response: %v\n", resp)
+		log.Printf("Notification was sent!\n")
 	}
 }
 
@@ -135,7 +136,12 @@ func getMetrics(c *gin.Context) {
 }
 
 func main() {
-	//	gin.SetMode(gin.ReleaseMode)
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	//gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
 	r.POST("/metrics", getMetrics)
