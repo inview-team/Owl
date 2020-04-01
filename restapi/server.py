@@ -1,11 +1,17 @@
 import os
-from flask import Flask, jsonify, request
-from model import db, init_db, Alarms, Logs, Settings, Telegram
+
+from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS
+from bokeh.plotting import figure
+from bokeh.embed import components
 from dotenv import load_dotenv, find_dotenv
 import telebot
-
 # from clickhouse_driver import connect
+
+
+from model import db, init_db, Alarms, Logs, Settings, Telegram
+
+
 
 '''nodes = {"ns=2;i=9": "pressure", "ns=2;i=10": "humidity", "ns=2;i=11": "roomTemperature", "ns=2;i=12": "workingAreaTemperatur", "ns=2;i=13": "pH", "ns=2;i=14": "weight", "ns=2;i=15": "fluidFlow", "ns=2;i=16": "co2"}
 
@@ -36,12 +42,24 @@ db.init_app(application)
 with application.app_context():
     init_db()
 
-'''
-@app.route('/projects', methods=['GET','POST'])
-def get_metrics():
-    cursor.execute('SELECT * FROM metrics WHERE timestamp > now() - 100')
-    metrics = cursor.fetchall()
-'''
+
+@application.route('/dashboard')
+def show_dashboard():
+    plots = []
+    plots.append(make_plot())
+    return render_template('dashboard.html', plots=plots)
+
+def make_plot():
+    plot = figure(plot_height=300, sizing_mode='scale_width')
+
+    x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    y = [2**v for v in x]
+
+    plot.line(x, y, line_width=4)
+
+    script, div = components(plot)
+    return script, div
+
 
 # Logs routes
 
