@@ -9,9 +9,7 @@ import telebot
 # from clickhouse_driver import connect
 
 
-from model import db, init_db, Alarms, Logs, Settings, Telegram
-
-
+from restapi.model import db, init_db, Alarms, Logs, Settings, Telegram
 
 '''nodes = {"ns=2;i=9": "pressure", "ns=2;i=10": "humidity", "ns=2;i=11": "roomTemperature", "ns=2;i=12": "workingAreaTemperatur", "ns=2;i=13": "pH", "ns=2;i=14": "weight", "ns=2;i=15": "fluidFlow", "ns=2;i=16": "co2"}
 
@@ -45,20 +43,7 @@ with application.app_context():
 
 @application.route('/dashboard')
 def show_dashboard():
-    plots = []
-    plots.append(make_plot())
-    return render_template('dashboard.html', plots=plots)
-
-def make_plot():
-    plot = figure(plot_height=300, sizing_mode='scale_width')
-
-    x = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    y = [2**v for v in x]
-
-    plot.line(x, y, line_width=4)
-
-    script, div = components(plot)
-    return script, div
+    return 0
 
 
 # Logs routes
@@ -84,7 +69,6 @@ def get_alarms():
                 info
             )
 
-
         return jsonify({'message': 'Alarm added'})
     else:
         records = Alarms.query.all()
@@ -104,6 +88,7 @@ def get_logs():
         records = Logs.query.all()
         print(records)
         return jsonify({'logs': [record.serialize() for record in records]})
+
 
 # Settings routes
 
@@ -138,6 +123,7 @@ def add_admin():
     db.session.add(admin_request)
     db.session.commit()
     return jsonify({'message': 'Admin added'})
+
 
 if __name__ == "__main__":
     application.run(host="0.0.0.0", port=1337)
