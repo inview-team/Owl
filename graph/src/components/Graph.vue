@@ -1,29 +1,44 @@
 <template>
   <div class="container">
-    <h1>Graphs</h1>
+    <line-chart :chart-data="datacollection"></line-chart>
   </div>
 </template>
 
 <script>
+import LineChart from './LineChart';
 
 export default {
+  components: {
+    LineChart,
+  },
   data() {
     return {
-      return() {
-      },
+      datacollection: null,
     };
   },
-  methods: {
-    getData() {
-
-    },
+  mounted() {
+    this.fillData();
   },
-  created() {
-    this.getData();
+  methods: {
+    fillData() {
+      this.datacollection = {
+        labels: ['April 15th 2017', 'April 22nd 2017', 'April 24th 2017', 'April 29th 2017', 'May 1st 2017', 'May 5th 2017'],
+        datasets: [
+          {
+            label: 'Data One',
+            backgroundColor: '#f87979',
+            data: [100, 500, 1000, 2000, 500, 4000],
+          },
+        ],
+      };
+    },
+    getRandomInt() {
+      return Math.floor(Math.random() * (50)) + 5;
+    },
   },
 };
 </script>
 
-<style scoped>
+<style>
 
 </style>
