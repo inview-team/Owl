@@ -19,7 +19,7 @@ build worker:
     - docker push ${DOCKER_TEAM}/owl-worker
 
 deploy worker:
-  stage: deploy_2
+  stage: deploy
   tags:
     - kubernetes
   script:
