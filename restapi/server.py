@@ -1,21 +1,16 @@
 import os
 
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request
 from flask_cors import CORS
-from bokeh.plotting import figure
-from bokeh.embed import components
 from dotenv import load_dotenv, find_dotenv
 import telebot
-# from clickhouse_driver import connect
-
+from clickhouse_driver import connect
 
 from restapi.model import db, init_db, Alarms, Logs, Settings, Telegram
 
-'''nodes = {"ns=2;i=9": "pressure", "ns=2;i=10": "humidity", "ns=2;i=11": "roomTemperature", "ns=2;i=12": "workingAreaTemperatur", "ns=2;i=13": "pH", "ns=2;i=14": "weight", "ns=2;i=15": "fluidFlow", "ns=2;i=16": "co2"}
-
-conn = connect('clickhouse://clickhouse-svc')
-cursor = conn.cursor()
-'''
+nodes = {"ns=2;i=9": "pressure", "ns=2;i=10": "humidity", "ns=2;i=11": "roomTemperature",
+         "ns=2;i=12": "workingAreaTemperatur", "ns=2;i=13": "pH", "ns=2;i=14": "weight", "ns=2;i=15": "fluidFlow",
+         "ns=2;i=16": "co2"}
 
 load_dotenv(find_dotenv())
 
@@ -23,6 +18,8 @@ application = Flask(__name__)
 application.config.from_object(__name__)
 
 CORS(application, resources={r'/*': {'origins': '*'}})
+
+# MySQL
 
 database_uri = 'mysql+pymysql://{dbuser}:{dbpass}@{dbhost}/{dbname}'.format(
     dbuser=os.environ['DBUSER'],
@@ -40,10 +37,22 @@ db.init_app(application)
 with application.app_context():
     init_db()
 
+# Clickhouse
 
-@application.route('/dashboard')
-def show_dashboard():
-    return 0
+conn = connect('clickhouse://{server}'.format(
+    server=os.environ['SERVER']
+))
+cursor = conn.cursor()
+
+
+@application.route('/graph')
+def get_metrics():
+    cursor.execute('select * from metrics')
+    data = cursor.fetchall()
+    responce = {}
+    for i in range(len(data)):
+        responce[i] = {'metric': data[i][0], 'time': data[i][1], 'value': data[i][2]}
+    return jsonify(responce)
 
 
 # Logs routes

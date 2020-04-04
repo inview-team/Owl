@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import LineChart from './LineChart';
 
 export default {
@@ -14,6 +15,8 @@ export default {
   data() {
     return {
       datacollection: null,
+      label: [],
+      data: [],
     };
   },
   mounted() {
@@ -21,21 +24,27 @@ export default {
   },
   methods: {
     fillData() {
-      this.datacollection = {
-        labels: ['April 15th 2017', 'April 22nd 2017', 'April 24th 2017', 'April 29th 2017', 'May 1st 2017', 'May 5th 2017'],
-        datasets: [
-          {
-            label: 'Data One',
-            backgroundColor: '#f87979',
-            data: [100, 500, 1000, 2000, 500, 4000],
-          },
-          {
-            label: 'Data two',
-            backgroundColor: '#008000',
-            data: [4000, 500, 2000, 1000, 500, 100],
-          },
-        ],
-      };
+      axios.get('http://localhost:1337/graph')
+        .then(((res) => {
+          console.log(Object.keys(res.data).length);
+          for (let i = 0; i < Object.keys(res.data).length; i += 1) {
+            this.label.push(res.data[i].time);
+            this.data.push(res.data[i].value);
+          }
+          this.datacollection = {
+            labels: this.label,
+            datasets: [
+              {
+                label: res.data[0].metric,
+                backgroundColor: '#f87979',
+                data: this.data,
+              },
+            ],
+          };
+        }))
+        .catch((error) => {
+          console.error(error);
+        });
     },
   },
 };
