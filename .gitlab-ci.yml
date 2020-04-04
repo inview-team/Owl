@@ -1,5 +1,9 @@
 image: gitlab/dind
 
+variables:
+  KUBECTL: v1.17.0
+  KIND: v0.7.0
+
 services:
   - docker:18.09.7-dind
 
@@ -24,22 +28,14 @@ deploy worker:
     - kubernetes
   image:
     name: gitlab/dind
-  script:
-    - apt-get -y install curl
-    - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-    - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
-    - curl -O https://dl.google.com/go/go1.13.linux-amd64.tar.gz
-    - tar -xvf go1.13.linux-amd64.tar.gz
-    - mv go /usr/local
-    - export GOPATH=$HOME
-    - export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
-    - go version
-    - export GO111MODULE="on"
-    - sudo usermod -aG docker $USER
-    - newgrp docker 
-    - curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-$(uname)-amd64
-    - chmod +x ./kind
-    - sudo ./kind create cluster
-    - kubectl config view
-    - kubectl delete -f ./worker.yaml
-    - kubectl create -f ./worker.yaml  
+    script:
+      - apk add -U wget
+      - wget -O /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/${KIND}/kind-linux-amd64
+      - chmod +x /usr/local/bin/kind
+      - wget -O /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL}/bin/linux/amd64/kubectl
+      - chmod +x /usr/local/bin/kubectl
+      - kind create cluster --config=./gitlab/kind-config.yaml
+      - sed -i -E -e 's/localhost|0\.0\.0\.0/docker/g' "$HOME/.kube/config"
+      - kubectl delete -f ./worker/worker.yaml
+      - kubectl create -f ./worker/worker.yaml
+
