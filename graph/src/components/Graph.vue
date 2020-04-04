@@ -29,11 +29,13 @@ export default {
             backgroundColor: '#f87979',
             data: [100, 500, 1000, 2000, 500, 4000],
           },
+          {
+            label: 'Data two',
+            backgroundColor: '#008000',
+            data: [4000, 500, 2000, 1000, 500, 100],
+          },
         ],
       };
-    },
-    getRandomInt() {
-      return Math.floor(Math.random() * (50)) + 5;
     },
   },
 };

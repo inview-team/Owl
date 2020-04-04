@@ -2,22 +2,22 @@
   <div class="container">
     <h1 v-if="currentTab == 'Alarms' ">Alarms</h1>
     <h1 v-else>Logs</h1>
-    <ul class="nav nav-tabs">
+    <hr>
+    <ul class="nav nav-tabs" style="display: inline-flex">
       <li role="presentation" @click="getAlarms">
-        <a href="#">Alarms</a>
+        <a href="#" class="btn btn-primary btn-sm" >Alarms</a>
       </li>
       <li role="presentation" @click="getLogs">
-        <a href="#">Logs</a>
+        <a href="#" class="btn btn-primary btn-sm">Logs</a>
       </li>
     </ul>
-    <div class="tab-content">
+    <div class="tab-content custom-scrollbar">
       <div v-if="currentTab == 'Alarms'">
       <table class="table table-hover">
           <thead>
             <tr>
               <th scope="col">Datetime</th>
               <th scope="col">Info</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -34,7 +34,6 @@
             <tr>
               <th scope="col">Datetime</th>
               <th scope="col">Info</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -65,7 +64,7 @@ export default {
     getAlarms() {
       this.currentTab = 'Alarms';
 
-      axios.get('http://localhost:5000/alarms')
+      axios.get('http://localhost:1337/alarms')
         .then(((res) => {
           this.alarms = res.data.alarms;
         }))
@@ -75,7 +74,7 @@ export default {
     },
     getLogs() {
       this.currentTab = 'Logs';
-      axios.get('http://localhost:5000/logs')
+      axios.get('http://localhost:1337/logs')
         .then(((res) => {
           this.logs = res.data.logs;
         }))
@@ -92,5 +91,12 @@ export default {
 </script>
 
 <style scoped>
-
+.custom-scrollbar {
+  position: relative;
+  height: 500px;
+  overflow: auto;
+}
+.tab-content{
+  display: block;
+}
 </style>
