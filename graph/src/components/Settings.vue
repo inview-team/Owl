@@ -1,9 +1,8 @@
 <template>
   <div class="container">
-
     <h1>Settings</h1>
-    <hr><br>
-       <button class="btn btn-success btn-sm" v-b-modal.settings-modal>New Settings</button>
+    <hr>
+    <button class="btn btn-success btn-sm" v-b-modal.settings-modal>New Settings</button>
     <div>
       <table class="table table-hover">
           <thead>
@@ -83,7 +82,7 @@ export default {
   },
   methods: {
     getInfo() {
-      axios.get('http://localhost:5000/settings')
+      axios.get('http://localhost:1337/settings')
         .then(((res) => {
           this.info = res.data.settings;
         }))
@@ -97,7 +96,7 @@ export default {
       this.editSettingsForm.to = null;
     },
     updateSettings(payload, id) {
-      axios.put(`http://localhost:5000/settings_update/${id}`, payload)
+      axios.put(`http://localhost:1337/settings_update/${id}`, payload)
         .then((responce) => {
           this.getInfo();
           console.log(responce);
@@ -110,7 +109,7 @@ export default {
       const date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
       const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
       const dateTime = `${date} ${time}`;
-      axios.post('http://localhost:5000/logs', {
+      axios.post('http://localhost:1337/logs', {
         time: dateTime,
         info: `Update ${this.editSettingsForm.metric}`,
       });
