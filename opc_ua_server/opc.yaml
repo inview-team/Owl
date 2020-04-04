@@ -1,13 +1,24 @@
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: opc-server
   labels:
     app: opc
 spec:
-  containers:
-  - name: opc-server 
-    image: inviewteam/opc-server
+  replicas: 3
+  selector:
+    matchLabels:
+      app: opc
+  template:
+    metadata:
+      labels:
+        app: opc
+    spec:
+      containers:
+      - name: opc-server
+        image: inviewteam/opc-server 
+        ports:
+        - containerPort: 8080
 ---
 apiVersion: v1
 kind: Service
