@@ -33,7 +33,11 @@ deploy worker:
     - export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
     - go version
     - export GO111MODULE="on"
-    - go get sigs.k8s.io/kind@v0.7.0 && kind create cluster
+    - curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-$(uname)-amd64
+    - chmod +x ./kind
+    - mv ./kind /usr/local/kind
+    - export PATH=$PATH:/usr/local/kind
+    - kind create cluster
     - kubectl config view
     - kubectl delete -f ./worker.yaml
     - kubectl create -f ./worker.yaml  
