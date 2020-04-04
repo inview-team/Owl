@@ -35,7 +35,6 @@ deploy worker:
     - export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
     - go version
     - export GO111MODULE="on"
-    - sudo groupadd docker
     - sudo usermod -aG docker $USER
     - newgrp docker 
     - curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v0.7.0/kind-$(uname)-amd64
