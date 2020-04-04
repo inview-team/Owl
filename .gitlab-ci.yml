@@ -27,7 +27,7 @@ deploy worker:
   tags:
     - kubernetes
   image:
-    name: gitlab/dind
+    name: docker:stable
   script:
     - apt-get -y install wget
     - wget -O /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/${KIND}/kind-linux-amd64
