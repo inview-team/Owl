@@ -145,7 +145,7 @@ func main() {
 	r := gin.Default()
 
 	r.POST("/metrics", getMetrics)
-	err := r.Run(":31337")
+	err = r.Run(":31337")
 	if err != nil {
 		log.Fatal(err)
 	}
