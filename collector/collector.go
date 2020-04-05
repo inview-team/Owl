@@ -8,6 +8,7 @@ import (
 	"time"
 	"fmt"
 
+	"github.com/joho/godotenv"
 	"github.com/streadway/amqp"
 	"github.com/gopcua/opcua"
 	"github.com/gopcua/opcua/debug"
@@ -15,7 +16,7 @@ import (
 	"github.com/gopcua/opcua/ua"
 )
 
-var opcserver = "opc.tcp://opc-svc:8080"
+var opcserver string
 var nodes = []string{"ns=2;i=9", "ns=2;i=10", "ns=2;i=11", "ns=2;i=12", "ns=2;i=13", "ns=2;i=14", "ns=2;i=15", "ns=2;i=16"}
 
 func failOnError(err error, msg string) {
@@ -73,6 +74,12 @@ func cleanup(sub *monitor.Subscription) {
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	opcserver = os.Getenv("OPCSERVER")
+
 	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq-svc:5672/")
         failOnError(err, "Failed to connect to RabbitMQ")
         defer conn.Close()

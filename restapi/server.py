@@ -6,7 +6,7 @@ from dotenv import load_dotenv, find_dotenv
 import telebot
 from clickhouse_driver import connect
 
-from restapi.model import db, init_db, Alarms, Logs, Settings, Telegram
+from model import db, init_db, Alarms, Logs, Settings, Telegram
 
 nodes = {"ns=2;i=9": "pressure", "ns=2;i=10": "humidity", "ns=2;i=11": "roomTemperature",
          "ns=2;i=12": "workingAreaTemperatur", "ns=2;i=13": "pH", "ns=2;i=14": "weight", "ns=2;i=15": "fluidFlow",

@@ -18,6 +18,11 @@ spec:
   selector:
     app: ch-db
   ports:
-    - protocol: TCP
+    - name: client-port
+      protocol: TCP
       port: 9000
-      nodePort: 30000
+      nodePort: 30001
+    - name: http-port
+      protocol: TCP
+      port: 8123
+      nodePort: 30002
