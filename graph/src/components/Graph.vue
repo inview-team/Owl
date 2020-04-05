@@ -20,7 +20,7 @@ export default {
   data() {
     return {
       datacollection: null,
-      label: [],
+      times: [],
       data: [],
       metrics: [],
       selected: '',
@@ -31,6 +31,9 @@ export default {
   },
   methods: {
     fillData() {
+      this.metrics = []
+      this.data = [];
+      this.times = [];
       axios.get('http://localhost:1337/graph')
         .then(((res) => {
           console.log(Object.keys(res.data).length);
@@ -38,16 +41,16 @@ export default {
             if (this.metrics.indexOf(res.data[i].metric) === -1) {
               this.metrics.push(res.data[i].metric);
               this.data.push([]);
-              this.label.push([]);
+              this.times.push([]);
             }
-            this.label[this.metrics.indexOf(res.data[i].metric)].push(res.data[i].time);
+            this.times[this.metrics.indexOf(res.data[i].metric)].push(res.data[i].time);
             this.data[this.metrics.indexOf(res.data[i].metric)].push(res.data[i].value);
           }
           if (this.selected === '') {
             this.selected = this.metrics[0];
           }
           this.datacollection = {
-            labels: this.label[this.metrics.indexOf(this.selected)],
+            labels: this.times[this.metrics.indexOf(this.selected)],
             datasets: [
               {
                 label: this.metrics[this.metrics.indexOf(this.selected)],

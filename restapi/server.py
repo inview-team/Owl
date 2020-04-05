@@ -1,10 +1,12 @@
 import os
+from operator import itemgetter
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from dotenv import load_dotenv, find_dotenv
 import telebot
 from clickhouse_driver import connect
+
 
 from model import db, init_db, Alarms, Logs, Settings, Telegram
 
@@ -49,11 +51,12 @@ cursor = conn.cursor()
 def get_metrics():
     cursor.execute('select * from metrics')
     data = cursor.fetchall()
-    data = sorted(data, key=lambda metric: metric[1])
+    data = sorted(data, key=itemgetter(1))
     resp = {}
     for i in range(len(data)):
+        print(data[i][1])
         resp[i] = {'metric': data[i][0], 'time': data[i][1], 'value': data[i][2]}
-
+    print(resp)
     return jsonify(resp)
 
 
