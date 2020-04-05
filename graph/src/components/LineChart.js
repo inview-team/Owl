@@ -10,9 +10,6 @@ export default {
       options: { // Chart.js options
         scales: {
           yAxes: [{
-            ticks: {
-              beginAtZero: true,
-            },
             gridLines: {
               display: true,
             },

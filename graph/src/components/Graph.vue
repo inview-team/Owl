@@ -1,5 +1,10 @@
 <template>
   <div class="container">
+    <b-form-select :options="metrics"
+                   style="width: 30%"
+                   v-model="selected"
+                   v-on:change="fillData"
+    ></b-form-select>
     <line-chart :chart-data="datacollection"></line-chart>
   </div>
 </template>
@@ -17,6 +22,8 @@ export default {
       datacollection: null,
       label: [],
       data: [],
+      metrics: [],
+      selected: '',
     };
   },
   mounted() {
@@ -28,16 +35,24 @@ export default {
         .then(((res) => {
           console.log(Object.keys(res.data).length);
           for (let i = 0; i < Object.keys(res.data).length; i += 1) {
-            this.label.push(res.data[i].time);
-            this.data.push(res.data[i].value);
+            if (this.metrics.indexOf(res.data[i].metric) === -1) {
+              this.metrics.push(res.data[i].metric);
+              this.data.push([]);
+              this.label.push([]);
+            }
+            this.label[this.metrics.indexOf(res.data[i].metric)].push(res.data[i].time);
+            this.data[this.metrics.indexOf(res.data[i].metric)].push(res.data[i].value);
+          }
+          if (this.selected === '') {
+            this.selected = this.metrics[0];
           }
           this.datacollection = {
-            labels: this.label,
+            labels: this.label[this.metrics.indexOf(this.selected)],
             datasets: [
               {
-                label: res.data[0].metric,
+                label: this.metrics[this.metrics.indexOf(this.selected)],
                 backgroundColor: '#f87979',
-                data: this.data,
+                data: this.data[this.metrics.indexOf(this.selected)],
               },
             ],
           };

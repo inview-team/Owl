@@ -49,10 +49,12 @@ cursor = conn.cursor()
 def get_metrics():
     cursor.execute('select * from metrics')
     data = cursor.fetchall()
-    responce = {}
+    data = sorted(data, key=lambda metric: metric[1])
+    resp = {}
     for i in range(len(data)):
-        responce[i] = {'metric': data[i][0], 'time': data[i][1], 'value': data[i][2]}
-    return jsonify(responce)
+        resp[i] = {'metric': data[i][0], 'time': data[i][1], 'value': data[i][2]}
+
+    return jsonify(resp)
 
 
 # Logs routes
