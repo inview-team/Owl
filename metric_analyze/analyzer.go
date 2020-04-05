@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/gin-gonic/gin"
@@ -43,6 +44,28 @@ var nodes = map[string]string{
 	"ns=2;i=16": "CO2",
 }
 
+var limits = make(map[string]Settings, 8)
+
+func getSettings(currNode string) {
+	addr := os.Getenv("RESTAPI_ADDRESS") + "settings/" + currNode
+
+	settings, err := http.Get(addr)
+        if err != nil {
+                err = fmt.Errorf("Failed to get settings: %w", err)
+                log.Fatal(err)
+        }
+        settingsBytes, err := ioutil.ReadAll(settings.Body)
+        if err != nil {
+                log.Fatal(err)
+        }
+
+        err = json.Unmarshal(settingsBytes, limits[currNode])
+        if err != nil {
+                err = fmt.Errorf("Failed to parse body: %s\n %w", settings.Body, err)
+                log.Fatal(err)
+        }
+}
+
 func (mt *Metric) checkForAnomalies() {
 	// Get current node
 	currNode, ok := nodes[mt.Node]
@@ -51,26 +74,6 @@ func (mt *Metric) checkForAnomalies() {
 		log.Fatal(err)
 	}
 	log.Printf("Current node: %s\n", currNode)
-	addr := os.Getenv("RESTAPI_ADDRESS") + "settings/" + currNode
-
-	// Get settings for current node
-	settings, err := http.Get(addr)
-	if err != nil {
-		err = fmt.Errorf("Failed to get settings: %w", err)
-		log.Fatal(err)
-	}
-	settingsBytes, err := ioutil.ReadAll(settings.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Parse settings and get limit values for metrics
-	var limits = Settings{}
-	err = json.Unmarshal(settingsBytes, &limits)
-	if err != nil {
-		err = fmt.Errorf("Failed to parse body: %s\n %w", settings.Body, err)
-		log.Fatal(err)
-	}
 
 	// Get current metric value
 	currValue, err := strconv.ParseFloat(mt.Value, 64)
@@ -78,15 +81,15 @@ func (mt *Metric) checkForAnomalies() {
 		err = fmt.Errorf("Failed to parse value: %s\n %w", mt.Value, err)
 		log.Fatal(err)
 	}
-	from := float64(limits.From)
-	to := float64(limits.To)
+	from := float64(limits[currNode].From)
+	to := float64(limits[currNode].To)
 
 	// Compare with metric value
 	if (currValue > to) || (currValue < from) {
 		// Send notification
 		alarm := Alarm{
 			Time: mt.Timestamp,
-			Info: mt.Node,
+			Info: currNode,
 		}
 
 		reqBody, err := json.Marshal(alarm)
@@ -140,6 +143,13 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+
+	go func() {
+		for _,n := range nodes {
+			getSettings(n)
+		}
+		time.Sleep(3*time.Minute)
+	}()
 
 	//gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
