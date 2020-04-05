@@ -2,5 +2,5 @@ backup*
 *.sh
 *log
 gitlab*.yaml
-*.env
+*.env*
 *pycache*
