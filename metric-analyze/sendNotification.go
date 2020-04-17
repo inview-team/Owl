@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 )
 
 type Alarm struct {
@@ -23,7 +22,7 @@ func sendNotification(time string, node string) error {
 	if err != nil {
 		return err
 	}
-	alarmAddr := os.Getenv("RESTAPI_ADDRESS") + "alarms"
+	alarmAddr := "http://restapi-svc:1337/alarms"
 	client := http.Client{}
 	req, err := http.NewRequest("POST", alarmAddr, bytes.NewReader(reqBody))
 	if err != nil {

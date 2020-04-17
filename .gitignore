@@ -1,6 +1,9 @@
 backup*
-*.sh
+*deploy*
+*build*
+*reset*
+opc*
 *log
 gitlab*.yaml
-*.env*
+*.env
 *pycache*
