@@ -9,7 +9,6 @@ services:
 
 stages:
   - build
-  - deploy
 
 build worker:
   stage: build
@@ -21,21 +20,62 @@ build worker:
     - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
     - docker build -t ${DOCKER_TEAM}/owl-worker ./worker
     - docker push ${DOCKER_TEAM}/owl-worker
+  only:
+    changes:
+      - worker*
 
-deploy worker:
-  stage: deploy
+build collector:
+  stage: build
   tags:
-    - kubernetes
+    - docker
   image:
-    name: docker:stable
+    name: gitlab/dind
   script:
-    - apk add -U wget
-    - wget -O /usr/local/bin/kind https://github.com/kubernetes-sigs/kind/releases/download/${KIND}/kind-linux-amd64
-    - chmod +x /usr/local/bin/kind
-    - wget -O /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL}/bin/linux/amd64/kubectl
-    - chmod +x /usr/local/bin/kubectl
-    - kind create cluster --config=./gitlab/kind-config.yaml
-    - sed -i -E -e 's/localhost|0\.0\.0\.0/docker/g' "$HOME/.kube/config"
-    - kubectl delete -f ./worker/worker.yaml
-    - kubectl create -f ./worker/worker.yaml
+    - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+    - docker build -t ${DOCKER_TEAM}/owl-collector ./collector
+    - docker push ${DOCKER_TEAM}/owl-collector
+  only:
+    changes:
+      - collector*
 
+build restapi:
+  stage: build
+  tags:
+    - docker
+  image:
+    name: gitlab/dind
+  script:
+    - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+    - docker build -t ${DOCKER_TEAM}/owl-restapi ./restapi
+    - docker push ${DOCKER_TEAM}/owl-restapi
+  only:
+    changes:
+      - restapi*
+
+build analyzer:
+  stage: build
+  tags:
+    - docker
+  image:
+    name: gitlab/dind
+  script:
+    - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+    - docker build -t ${DOCKER_TEAM}/owl-analyzer ./metric-analyze
+    - docker push ${DOCKER_TEAM}/owl-analyzer
+  only:
+    changes:
+      - metric-analyze*
+
+build front:
+  stage: build
+  tags:
+    - docker
+  image:
+    name: gitlab/dind
+  script:
+    - docker login -u ${DOCKER_USER} -p ${DOCKER_PASSWORD}
+    - docker build -t ${DOCKER_TEAM}/owl-front ./graph
+    - docker push ${DOCKER_TEAM}/owl-front
+  only:
+    changes:
+      - graph*
