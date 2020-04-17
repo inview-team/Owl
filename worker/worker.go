@@ -2,10 +2,7 @@ package main
 
 import (
         "bytes"
-        "encoding/json"
-        "fmt"
         "log"
-        "net/http"
         "strings"
         "time"
 
@@ -86,34 +83,6 @@ func main() {
                         if err != nil {
                                 failOnError(err, "Failed to send metrics to Clickhouse")
                         }
-
-                        // Send metric to analyzer
-                        var metric struct {
-                                Node      string `json:"node"`
-                                Timestamp string `json:"timestamp"`
-                                Value     string `json:"value"`
-                        }
-                        metric.Node = msg[0]
-                        metric.Timestamp = msg[1]
-                        metric.Value = msg[2]
-
-                        reqBody, err := json.Marshal(metric)
-                        if err != nil {
-                                log.Fatal(fmt.Errorf("Failed to parse json metric: %v\n%w\n", msg, err))
-                        }
-
-                        httpcli := &http.Client{}
-                        req, err := http.NewRequest("POST", "http://analyzer-svc:31337/metrics", bytes.NewReader(reqBody))
-                        if err != nil {
-                                err = fmt.Errorf("Failed to send metrics to analyzer: %v\n%w", req, err)
-                                log.Fatal(err)
-                        }
-                        req.Header.Add("Content-Type", "application/json")
-                        resp, err := httpcli.Do(req)
-                        if err != nil {
-                                log.Fatal(fmt.Errorf("Failed to send metrics to analyzer: %w\n", err))
-                        }
-                        defer resp.Body.Close()
 
                         dot_count := bytes.Count(d.Body, []byte("."))
                         t := time.Duration(dot_count)

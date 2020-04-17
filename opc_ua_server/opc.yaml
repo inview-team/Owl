@@ -1,24 +1,24 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: rabbitmq
+  name: opc-server
   namespace: owl
   labels:
-    app: rabbit
+    app: opc
 spec:
   containers:
-  - name: rabbitmq
-    image: rabbitmq:3.8.3-alpine  
+  - name: opc-server 
+    image: inviewteam/opc-server
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: rabbitmq-svc
+  name: opc-svc
   namespace: owl
 spec:
   selector:
-    app: rabbit
+    app: opc
   ports:
     - protocol: TCP
-      port: 5672
-      targetPort: 5672
+      port: 8080
+      targetPort: 8080
