@@ -2,27 +2,26 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"time"
-	"fmt"
 
-	"github.com/joho/godotenv"
-	"github.com/streadway/amqp"
 	"github.com/gopcua/opcua"
 	"github.com/gopcua/opcua/debug"
 	"github.com/gopcua/opcua/monitor"
 	"github.com/gopcua/opcua/ua"
+	"github.com/streadway/amqp"
 )
 
 var opcserver string
 var nodes = []string{"ns=2;i=9", "ns=2;i=10", "ns=2;i=11", "ns=2;i=12", "ns=2;i=13", "ns=2;i=14", "ns=2;i=15", "ns=2;i=16"}
 
 func failOnError(err error, msg string) {
-        if err != nil {
-                log.Fatalf("%s: %s", msg, err)
-        }
+	if err != nil {
+		log.Fatalf("%s: %s", msg, err)
+	}
 }
 
 func startCallbackSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag time.Duration, q *amqp.Queue, ch *amqp.Channel, node string) {
@@ -39,22 +38,22 @@ func startCallbackSub(ctx context.Context, m *monitor.NodeMonitor, interval, lag
 				val := fmt.Sprintf("%v", msg.Value.Value())
 				body := node + "; " + msg.SourceTimestamp.Format("2006-01-02 15:04:05") + "; " + val
 				err := ch.Publish(
-			                "",           // exchange
-			                q.Name,       // routing key
-			                false,        // mandatory
-			                false,
-			                amqp.Publishing{
-			                        DeliveryMode: amqp.Persistent,
+					"",     // exchange
+					q.Name, // routing key
+					false,  // mandatory
+					false,
+					amqp.Publishing{
+						DeliveryMode: amqp.Persistent,
 						ContentType:  "text/plain",
-			                        Body:         []byte(body),
-		                })
-		        failOnError(err, "Failed to publish a message")
-		        log.Printf(" [x] Sent %s", body)
+						Body:         []byte(body),
+					})
+				failOnError(err, "Failed to publish a message")
+				log.Printf(" [x] Sent %s", body)
 
 			}
 			time.Sleep(lag)
 		},
-		node )
+		node)
 
 	if err != nil {
 		failOnError(err, "Failed to subscribe")
@@ -74,29 +73,25 @@ func cleanup(sub *monitor.Subscription) {
 }
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 	opcserver = os.Getenv("OPCSERVER")
 
 	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq-svc:5672/")
-        failOnError(err, "Failed to connect to RabbitMQ")
-        defer conn.Close()
+	failOnError(err, "Failed to connect to RabbitMQ")
+	defer conn.Close()
 	log.Printf("Connected\n")
-        ch, err := conn.Channel()
-        failOnError(err, "Failed to open a channel")
-        defer ch.Close()
+	ch, err := conn.Channel()
+	failOnError(err, "Failed to open a channel")
+	defer ch.Close()
 	log.Printf("Opened channel \n")
-        q, err := ch.QueueDeclare(
-                "metrics", // name
-                true,         // durable
-                false,        // delete when unused
-                false,        // exclusive
-                false,        // no-wait
-                nil,          // arguments
-        )
-        failOnError(err, "Failed to declare a queue")
+	q, err := ch.QueueDeclare(
+		"metrics", // name
+		true,      // durable
+		false,     // delete when unused
+		false,     // exclusive
+		false,     // no-wait
+		nil,       // arguments
+	)
+	failOnError(err, "Failed to declare a queue")
 	log.Printf("Declared queue %s\n", q.Name)
 	var (
 		endpoint = opcserver

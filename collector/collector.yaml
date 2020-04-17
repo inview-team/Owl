@@ -20,3 +20,13 @@ spec:
         image: inviewteam/owl-collector 
         ports:
         - containerPort: 8888
+        envFrom:
+          - configMapRef:
+            name: env-configmap
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env-configmap
+data:
+  OPCSERVER: #insert your server here
