@@ -2,7 +2,7 @@
 
 OPC-UA metric collector and anomaly detector
 
-Usage:
+### Usage:
 * Put in `collector/collector.yaml` your OPC-UA server address
 * Run `run .sh`
 
