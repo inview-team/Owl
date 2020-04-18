@@ -1,3 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env-configmap
+  namespace: owl
+data:
+  OPCSERVER: #insert your server here
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -21,12 +29,5 @@ spec:
         ports:
         - containerPort: 8888
         envFrom:
-          - configMapRef:
+        - configMapRef:
             name: env-configmap
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: env-configmap
-data:
-  OPCSERVER: #insert your server here
