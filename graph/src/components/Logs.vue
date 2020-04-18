@@ -58,13 +58,14 @@ export default {
       alarms: [],
       logs: [],
       currentTab: 'Alarms',
+      api_url: process.env.RESTAPI_SVC_SERVICE_HOST,
     };
   },
   methods: {
     getAlarms() {
       this.currentTab = 'Alarms';
-
-      axios.get('http://restapi-svc:1337/alarms')
+      
+      axios.get('http://${this.api_url}:1337/alarms')
         .then(((res) => {
           this.alarms = res.data.alarms;
         }))
@@ -74,7 +75,7 @@ export default {
     },
     getLogs() {
       this.currentTab = 'Logs';
-      axios.get('http://restapi-svc:1337/logs')
+      axios.get('http://${this.api_url}:1337/logs')
         .then(((res) => {
           this.logs = res.data.logs;
         }))
