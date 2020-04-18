@@ -109,7 +109,7 @@ export default {
       const date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
       const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
       const dateTime = `${date} ${time}`;
-      axios.post('http://localhost:1337/logs', {
+      axios.post('http://restapi-svc:1337/logs', {
         time: dateTime,
         info: `Update ${this.editSettingsForm.metric}`,
       });

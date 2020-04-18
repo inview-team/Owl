@@ -74,7 +74,7 @@ export default {
     },
     getLogs() {
       this.currentTab = 'Logs';
-      axios.get('http://localhost:1337/logs')
+      axios.get('http://restapi-svc:1337/logs')
         .then(((res) => {
           this.logs = res.data.logs;
         }))
