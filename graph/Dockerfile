@@ -12,4 +12,4 @@ RUN npm run build
 RUN cp -r dist/* /var/www/html
 RUN chown nginx:nginx /var/www/html
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
