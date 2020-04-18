@@ -82,7 +82,7 @@ export default {
   },
   methods: {
     getInfo() {
-      axios.get('http://localhost:1337/settings')
+      axios.get('http://restapi-svc:1337/settings')
         .then(((res) => {
           this.info = res.data.settings;
         }))
@@ -96,7 +96,7 @@ export default {
       this.editSettingsForm.to = null;
     },
     updateSettings(payload, id) {
-      axios.put(`http://localhost:1337/settings_update/${id}`, payload)
+      axios.put(`http://restapi-svc:1337/settings_update/${id}`, payload)
         .then((responce) => {
           this.getInfo();
           console.log(responce);

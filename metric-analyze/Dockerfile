@@ -3,5 +3,7 @@ ENV     	GO111MODULE on
 COPY		analyzer.go /home
 COPY		databaseQuery.go /home
 COPY		sendNotification.go /home
+COPY		go.mod /home
+COPY		go.sum /home
 WORKDIR		/home
 ENTRYPOINT	["go", "run", "."]

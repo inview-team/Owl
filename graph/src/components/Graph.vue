@@ -34,7 +34,7 @@ export default {
       this.metrics = []
       this.data = [];
       this.times = [];
-      axios.get('http://localhost:1337/graph')
+      axios.get('http://restapi-svc:1337/graph')
         .then(((res) => {
           console.log(Object.keys(res.data).length);
           for (let i = 0; i < Object.keys(res.data).length; i += 1) {

@@ -64,7 +64,7 @@ export default {
     getAlarms() {
       this.currentTab = 'Alarms';
 
-      axios.get('http://localhost:1337/alarms')
+      axios.get('http://restapi-svc:1337/alarms')
         .then(((res) => {
           this.alarms = res.data.alarms;
         }))

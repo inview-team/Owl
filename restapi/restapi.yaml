@@ -21,4 +21,4 @@ spec:
   ports:
     - protocol: TCP
       port: 1337
-      targetPort: 1337
+      targetPort: 32312
