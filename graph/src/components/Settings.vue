@@ -83,7 +83,7 @@ export default {
   },
   methods: {
     getInfo() {
-      axios.get('http://${this.api_url}:1337/settings')
+      axios.get(`http://${this.api_url}:1337/settings`)
         .then(((res) => {
           this.info = res.data.settings;
         }))
@@ -110,7 +110,7 @@ export default {
       const date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
       const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
       const dateTime = `${date} ${time}`;
-      axios.post('http://${this.api_url}:1337/logs', {
+      axios.post(`http://${this.api_url}:1337/logs`, {
         time: dateTime,
         info: `Update ${this.editSettingsForm.metric}`,
       });
