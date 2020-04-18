@@ -41,9 +41,7 @@ with application.app_context():
 
 # Clickhouse
 
-conn = connect('clickhouse://{server}'.format(
-    server=os.environ['SERVER']
-))
+conn = connect('clickhouse://clickhouse-svc:9000')
 cursor = conn.cursor()
 
 

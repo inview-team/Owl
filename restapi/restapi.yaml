@@ -8,7 +8,7 @@ metadata:
 spec:
   containers:
   - name: restapi
-    image: inviewteam/restapi  
+    image: inviewteam/owl-restapi  
 ---
 apiVersion: v1
 kind: Service
