@@ -11,7 +11,9 @@
 
 <script>
 import axios from 'axios';
+import items from '@/data/data.json';
 import LineChart from './LineChart';
+
 
 export default {
   components: {
@@ -24,7 +26,7 @@ export default {
       data: [],
       metrics: [],
       selected: '',
-      api_url: process.env.RESTAPI_SVC_SERVICE_HOST,
+      api_url: items.url,
     };
   },
   mounted() {
@@ -32,7 +34,7 @@ export default {
   },
   methods: {
     fillData() {
-      this.metrics = []
+      this.metrics = [];
       this.data = [];
       this.times = [];
       axios.get(`http://${this.api_url}:1337/graph`)

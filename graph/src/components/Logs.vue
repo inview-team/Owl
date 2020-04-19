@@ -51,6 +51,7 @@
 
 <script>
 import axios from 'axios';
+import items from '@/data/data.json';
 
 export default {
   data() {
@@ -58,13 +59,13 @@ export default {
       alarms: [],
       logs: [],
       currentTab: 'Alarms',
-      api_url: process.env.RESTAPI_SVC_SERVICE_HOST,
+      api_url: items.url,
     };
   },
   methods: {
     getAlarms() {
       this.currentTab = 'Alarms';
-      
+
       axios.get(`http://${this.api_url}:1337/alarms`)
         .then(((res) => {
           this.alarms = res.data.alarms;
@@ -86,6 +87,7 @@ export default {
   },
   created() {
     this.getAlarms();
+    console.log(this.api_url);
   },
 
 };

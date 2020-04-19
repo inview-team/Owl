@@ -4,6 +4,7 @@
   "description": "A Vue.js project",
   "author": "Artem Zaglubotskii <mr_a953@mail.ru>",
   "private": true,
+  "api_url": "127.0.0.1",
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
     "start": "npm run dev",

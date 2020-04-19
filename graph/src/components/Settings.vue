@@ -66,6 +66,7 @@
 
 <script>
 import axios from 'axios';
+import items from '@/data/data.json';
 
 export default {
   data() {
@@ -78,7 +79,7 @@ export default {
         from: null,
         to: null,
       },
-      api_url: process.env.RESTAPI_SVC_SERVICE_HOST,
+      api_url: items.url,
     };
   },
   methods: {
