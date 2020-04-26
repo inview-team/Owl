@@ -101,10 +101,9 @@ export default {
       axios.put(`http://${this.api_url}:31338/settings_update/${id}`, payload)
         .then((responce) => {
           this.getInfo();
-          console.log(responce);
         })
         .catch((error) => {
-          console.log(error);
+          console.error(error);
           this.getInfo();
         });
       const today = new Date();
@@ -119,7 +118,6 @@ export default {
     onSubmit(evt) {
       evt.preventDefault();
       this.$refs.editSettingsModal.hide();
-      console.log(this.editSettingsForm.metric);
       const metrId = this.info.find(inf => inf.metric === this.editSettingsForm.metric).id;
       const payload = {
         id: metrId,

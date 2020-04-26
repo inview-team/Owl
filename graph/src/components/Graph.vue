@@ -39,7 +39,6 @@ export default {
       this.times = [];
       axios.get(`http://${this.api_url}:31338/graph`)
         .then(((res) => {
-          console.log(Object.keys(res.data).length);
           for (let i = 0; i < Object.keys(res.data).length; i += 1) {
             if (this.metrics.indexOf(res.data[i].metric) === -1) {
               this.metrics.push(res.data[i].metric);
