@@ -16,9 +16,11 @@ metadata:
   name: restapi-svc
   namespace: owl
 spec:
+  type: NodePort
   selector:
     app: restapi
   ports:
     - protocol: TCP
       port: 1337
       targetPort: 1337
+      nodePort: 31338

@@ -4,7 +4,7 @@ metadata:
   name: env-configmap
   namespace: owl
 data:
-  OPCSERVER: #insert your server here
+  OPCSERVER: opc.tcp://opc-svc:8080
 ---
 apiVersion: apps/v1
 kind: Deployment

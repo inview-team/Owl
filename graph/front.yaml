@@ -7,19 +7,24 @@ metadata:
     app: front
 spec:
   containers:
-  - name: restapi
+  - name: front 
     image: inviewteam/owl-front
+    securityContext:
+       capabilities:
+         add:
+           - NET_ADMIN
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: front-svc
+  name: restapi-svc
   namespace: owl
 spec:
   type: NodePort
   selector:
     app: front
   ports:
-    - protocol: TCP
+    - name: front-port
+      protocol: TCP
       port: 80
       nodePort: 31337

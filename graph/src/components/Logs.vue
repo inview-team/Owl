@@ -66,7 +66,7 @@ export default {
     getAlarms() {
       this.currentTab = 'Alarms';
 
-      axios.get(`http://${this.api_url}:1337/alarms`)
+      axios.get(`http://${this.api_url}:31338/alarms`)
         .then(((res) => {
           this.alarms = res.data.alarms;
         }))
@@ -76,7 +76,7 @@ export default {
     },
     getLogs() {
       this.currentTab = 'Logs';
-      axios.get(`http://${this.api_url}:1337/logs`)
+      axios.get(`http://${this.api_url}:31338/logs`)
         .then(((res) => {
           this.logs = res.data.logs;
         }))

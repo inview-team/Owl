@@ -84,7 +84,7 @@ export default {
   },
   methods: {
     getInfo() {
-      axios.get(`http://${this.api_url}:1337/settings`)
+      axios.get(`http://${this.api_url}:31338/settings`)
         .then(((res) => {
           this.info = res.data.settings;
         }))
@@ -98,7 +98,7 @@ export default {
       this.editSettingsForm.to = null;
     },
     updateSettings(payload, id) {
-      axios.put(`http://${this.api_url}:1337/settings_update/${id}`, payload)
+      axios.put(`http://${this.api_url}:31338/settings_update/${id}`, payload)
         .then((responce) => {
           this.getInfo();
           console.log(responce);
@@ -111,7 +111,7 @@ export default {
       const date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
       const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
       const dateTime = `${date} ${time}`;
-      axios.post(`http://${this.api_url}:1337/logs`, {
+      axios.post(`http://${this.api_url}:31338/logs`, {
         time: dateTime,
         info: `Update ${this.editSettingsForm.metric}`,
       });

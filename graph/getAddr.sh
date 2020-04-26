@@ -1,3 +1,7 @@
 #!/bin/bash
-addr=$(kubectl get svc -n owl -o wide | grep restapi | awk '{print $3}')
-echo "RESTAPI_SVC_SERVICE_HOST="$addr > .env
+addr=$(dig +short myip.opendns.com @resolver1.opendns.com)
+cat > src/data/data.json <<EOF
+{
+	"url": "$addr"
+}
+EOF
